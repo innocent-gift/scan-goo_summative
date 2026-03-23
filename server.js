@@ -21,6 +21,7 @@ app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
 app.use('/api/sessions', require('./routes/sessions'));
 app.use('/api/alerts',   require('./routes/alerts'));
+app.use('/api/supermarkets', require('./routes/supermarkets'));
 
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route not found: ${req.method} ${req.path}` });

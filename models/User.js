@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['shopper', 'admin'],
+      enum: ['shopper', 'admin', 'staff', 'superadmin'],
       default: 'shopper',
     },
     // Avatar initials and color for the UI

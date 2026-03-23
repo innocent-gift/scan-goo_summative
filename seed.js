@@ -1,20 +1,8 @@
-/**
- * seed.js — Run once to populate the database with initial data
- *
- * Usage:
- *   node seed.js
- *
- * This will:
- *  1. Clear all existing products
- *  2. Insert the 8 default SCANGOO products
- *  3. Create a default admin account (if it doesn't exist)
- */
-
 require('dotenv').config();
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const Product = require('./models/Product');
+const User    = require('./models/User');
 
-// ── Connect ───────────────────────────────────────────────────────────────────
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log('✅ Connected to MongoDB');
   seed();
@@ -23,11 +11,6 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
   process.exit(1);
 });
 
-// ── Models (inline to keep seed.js standalone) ────────────────────────────────
-const Product = require('./models/Product');
-const User    = require('./models/User');
-
-// ── Seed data ─────────────────────────────────────────────────────────────────
 const PRODUCTS = [
   { id:'P001', name:'Indomie Noodles',     emoji:'🍜', price:350,  weight:0.075, barcode:'6001254001234', ageRestricted:false, category:'Food'      },
   { id:'P002', name:'Milk 1L',             emoji:'🥛', price:800,  weight:1.0,   barcode:'6001254002345', ageRestricted:false, category:'Dairy'     },
@@ -39,32 +22,31 @@ const PRODUCTS = [
   { id:'P008', name:'Eggs (Tray 12)',      emoji:'🥚', price:2400, weight:0.7,   barcode:'6001254008901', ageRestricted:false, category:'Dairy'     },
 ];
 
-const ADMIN = {
-  name: 'SCANGOO Admin',
-  email: 'admin@scangoo.rw',
-  password: 'Admin@1234',   // ← Change this after first login!
-  role: 'admin',
-  avatar: 'SA',
-  avatarColor: '#00C566',
-};
-
 async function seed() {
   try {
-    // ── Products ─────────────────────────────────────────────────────────────
     console.log('\n📦 Seeding products...');
     await Product.deleteMany({});
     const inserted = await Product.insertMany(PRODUCTS);
     console.log(`   ✓ ${inserted.length} products inserted`);
 
-    // ── Admin user ───────────────────────────────────────────────────────────
-    console.log('\n👤 Seeding admin user...');
-    const existing = await User.findOne({ email: ADMIN.email });
-    if (existing) {
+    console.log('\n👤 Seeding users...');
+
+    // Admin
+    const existingAdmin = await User.findOne({ email: 'admin@scangoo.rw' });
+    if (existingAdmin) {
       console.log('   ℹ️  Admin already exists — skipping');
     } else {
-      await User.create(ADMIN);
-      console.log(`   ✓ Admin created: ${ADMIN.email} / ${ADMIN.password}`);
-      console.log('   ⚠️  IMPORTANT: Change the admin password after first login!');
+      await User.create({ name:'SCANGOO Admin', email:'admin@scangoo.rw', password:'Admin@1234', role:'admin', avatar:'SA', avatarColor:'#00C566' });
+      console.log('   ✓ Admin created: admin@scangoo.rw / Admin@1234');
+    }
+
+    // Super Admin
+    const existingSuper = await User.findOne({ email: 'innocent@scangoo.rw' });
+    if (existingSuper) {
+      console.log('   ℹ️  Super admin already exists — skipping');
+    } else {
+      await User.create({ name:'Nkurunziza Innocent', email:'innocent@scangoo.rw', password:'SuperAdmin@1234', role:'superadmin', avatar:'NI', avatarColor:'#7B5EA7' });
+      console.log('   ✓ Super admin created: innocent@scangoo.rw / SuperAdmin@1234');
     }
 
     console.log('\n🎉 Seed complete!\n');

@@ -955,7 +955,8 @@ function renderDemoProducts() {
   grid.innerHTML = PRODUCTS.map(p => `
     <button class="demo-product-btn" onclick="scanProduct('${p.id}')">
       <div style="font-size:22px;margin-bottom:4px;">${p.emoji}</div>
-      <div class="dp-name">${p.name}</div>
+      <div class="dp-nam
+e">${p.name}</div>
       <div class="dp-price">${p.price.toLocaleString()} RWF</div>
       <div class="dp-weight">${p.weight}kg</div>
     </button>`).join('');
@@ -1026,7 +1027,7 @@ function renderCart() {
         <button class="qty-btn" onclick="changeQty('${item.product.id}',1)">+</button>
       </div>
       <div class="item-price">${(item.product.price*item.qty).toLocaleString()}<br><span style="font-size:11px;color:var(--gray);font-weight:400;">RWF</span></div>`;
-    list.appendChild(div);
+    list.insertBefore(div, footer);
   });
   document.getElementById('cart-subtotal').textContent   = totalPrice.toLocaleString() + ' RWF';
   document.getElementById('cart-grand-total').textContent = totalPrice.toLocaleString() + ' RWF';

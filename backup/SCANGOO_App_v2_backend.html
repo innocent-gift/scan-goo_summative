@@ -525,7 +525,7 @@
       <div class="cart-total-row"><span class="label">Total Weight</span><span class="value" id="cart-weight">0 kg</span></div>
       <hr class="divider"/>
       <div class="cart-total-row grand"><span class="label">Grand Total</span><span class="value" id="cart-grand-total">0 RWF</span></div>
-      <div style="display:flex;gap:10px;in-top:14px;">
+      <div style="display:flex;gap:10px;margin-top:14px;">
         <button class="add-more-btn" onclick="gotoScanner()">+ Add Items</button>
         <button class="btn-primary" style="flex:1;" onclick="gotoCheckout()">Proceed to Checkout</button>
       </div>
@@ -552,7 +552,7 @@
         <div class="payment-options">
           <div class="payment-option selected" onclick="selectPayment('momo', this)">
             <div class="payment-option-icon momo-icon">📱</div>
-            <div class="payment-option-info"><strong>MTN Mobile Mon</strong><span>Instant payment via MoMo</span></div>
+            <div class="payment-option-info"><strong>MTN Mobile Money</strong><span>Instant payment via MoMo</span></div>
             <div class="radio-dot"></div>
           </div>
           <div class="payment-option" onclick="selectPayment('airtel', this)">
@@ -560,7 +560,7 @@
             <div class="payment-option-info"><strong>Airtel Money</strong><span>Pay with Airtel Money wallet</span></div>
             <div class="radio-dot"></div>
           </div>
-          <div class="payment-option" onclick="selectPayment('cash', thi">
+          <div class="payment-option" onclick="selectPayment('cash', this)">
             <div class="payment-option-icon cash-icon">💵</div>
             <div class="payment-option-info"><strong>Cash at Counter</strong><span>Pay at the exit desk</span></div>
             <div class="radio-dot"></div>
@@ -568,7 +568,7 @@
         </div>
         <div class="phone-input-wrapper" id="phone-input-wrapper">
           <div class="form-group" style="margin-bottom:0;margin-top:12px;"><label>Confirm Phone Number</label><input type="tel" id="checkout-phone" value="+250 788 123 456"/></div>
-      </div>
+        </div>
       </div>
       <button class="pay-now-btn" onclick="processPayment()">PAY NOW →</button>
     </div>
@@ -586,7 +586,7 @@
   <!-- RECEIPT -->
   <div id="screen-receipt" class="screen">
     <div class="receipt-header">
-      <div class="success-icon"><svg width36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="success-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
       <h2>Payment Successful!</h2>
       <p id="receipt-subtitle">Paid via MTN MoMo · Just now</p>
     </div>
@@ -595,7 +595,7 @@
         <div class="receipt-card-title">Items Purchased</div>
         <div id="receipt-items-list"></div>
         <hr class="divider"/>
-        <div style="displa:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
           <span style="font-family:'Syne',sans-serif;font-weight:700;">Total Paid</span>
           <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--green);" id="receipt-total"></span>
         </div>
@@ -618,7 +618,7 @@
       <div class="admin-logo">
         <div class="admin-logo-dot"></div>
         <span>SCAN<em>&</em>GOO</span>
-      <span style="font-size:11px;color:#2D4A30;font-weight:500;margin-left:4px;">Admin</span>
+        <span style="font-size:11px;color:#2D4A30;font-weight:500;margin-left:4px;">Admin</span>
       </div>
       <button class="admin-logout" onclick="showScreen('auth')">Logout</button>
     </div>
@@ -642,7 +642,7 @@
     <!-- LIVE SESSIONS -->
     <div class="admin-section-header">
       <h3>🛒 Live Shopper Sessions <span class="live-badge">LIVE</span></h3>
-      <button onclick="addSimSession()" style="background:rgba(0,197,102,0.12);color:var(--green);border:none;border-radius:8px;padding:6px 12px;font-size:12pxont-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">+ Simulate Shopper</button>
+      <button onclick="addSimSession()" style="background:rgba(0,197,102,0.12);color:var(--green);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">+ Simulate Shopper</button>
     </div>
     <div class="sessions-list" id="admin-sessions-list">
       <div class="empty-state" id="sessions-empty">No active shoppers right now</div>
@@ -656,7 +656,7 @@
 
     <!-- ALERTS -->
     <div class="admin-section-header">
-      <h3>âerts <span class="red-badge" id="alert-count">0</span></h3>
+      <h3>⚠️ Alerts <span class="red-badge" id="alert-count">0</span></h3>
     </div>
     <div class="alerts-list" id="admin-alerts-list">
       <div style="padding:0 0 8px;color:#2D4A30;font-size:13px;text-align:center;" id="alerts-empty">No alerts</div>
@@ -667,7 +667,7 @@
       <h3>✅ Completed Today</h3>
       <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--green);" id="completed-total-rev">0 RWF</span>
     </div>
-    <div cls="completed-list" id="admin-completed-list">
+    <div class="completed-list" id="admin-completed-list">
       <div class="empty-state" id="completed-empty">No completed sessions yet</div>
     </div>
   </div>
@@ -707,7 +707,7 @@
     </div>
 
     <!-- ADD FORM (hidden by default) -->
-    <div id="sa-add-form" style="display:none;background:#0F0F1A;border:1px solid #1A1A2E;border-radius:16px;dding:16px;margin:0 16px 16px;">
+    <div id="sa-add-form" style="display:none;background:#0F0F1A;border:1px solid #1A1A2E;border-radius:16px;padding:16px;margin:0 16px 16px;">
       <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:12px;">New Supermarket</div>
       <input id="sa-name" placeholder="Store Name *" style="width:100%;padding:10px 14px;border:1px solid #1A1A2E;border-radius:10px;background:#08080F;color:var(--white);font-size:14px;margin-bottom:8px;outline:none;"/>
       <input id="sa-email" placeholder="Contact Email *" type="email" style="width:100%;padding:10px 14px;border:1px solid #1A1A2E;border-radius:10px;background:#08080F;color:var(--white);font-size:14px;margin-bottom:8px;outline:none;"/>
@@ -745,7 +745,7 @@ let selectedPayment = 'momo';
 let currentTxnId   = '';
 let PRODUCTS       = [];
 
-// ── Auth persistence ────────────────────────────────────────
+// ── Auth persistence ──────────────────────────────────────────
 function restoreAuth() {
   const t = localStorage.getItem('scangoo_token');
   const u = localStorage.getItem('scangoo_user');
@@ -757,7 +757,7 @@ function saveAuth(token, user) {
   localStorage.setItem('scangoo_token', token);
   localStorage.setItem('scangoo_user', JSON.stringify(user));
 }
-functioclearAuth() {
+function clearAuth() {
   authToken = null; currentUser = null; currentSession = null; cart = [];
   localStorage.removeItem('scangoo_token');
   localStorage.removeItem('scangoo_user');
@@ -856,7 +856,7 @@ async function doLogin() {
       renderAdminFull();
       showScreen('admin');
     } else {
-      await loadPructs();
+      await loadProducts();
       await ensureSession();
       populateHomeScreen();
       showScreen('home');
@@ -886,7 +886,7 @@ async function doAdminLogin() {
       showScreen('superadmin');
     } else {
       await loadProducts();
-    renderAdminFull();
+      renderAdminFull();
       showScreen('admin');
     }
   } catch (e) {
@@ -903,7 +903,7 @@ async function doRegister() {
   succEl.style.display = 'none';
 
   const name     = document.getElementById('reg-name').value.trim();
-  const email    = document.getElementById('r-email').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
   const phone    = document.getElementById('reg-phone').value.trim();
   const password = document.getElementById('reg-pass').value;
 
@@ -918,7 +918,7 @@ async function doRegister() {
 
   try {
     await api('POST', '/api/auth/register', { name, email, phone, password });
-    //lear form
+    // Clear form
     document.getElementById('reg-name').value  = '';
     document.getElementById('reg-email').value = '';
     document.getElementById('reg-phone').value = '';
@@ -929,7 +929,7 @@ async function doRegister() {
     // Switch to login tab after 1.5s
     setTimeout(() => {
       switchAuthTab('login', document.querySelectorAll('.auth-tab')[0]);
-      // Pre-fi email
+      // Pre-fill email
       document.getElementById('login-email').value = email;
     }, 1500);
   } catch (e) {
@@ -1003,7 +1003,7 @@ async function loadHomeHistory() {
     const sessions = data.sessions || [];
     const histSection = document.querySelector('.home-section');
     if (!sessions.length) {
-      histSection.innerHTML = '<div class="section-title">Recent Purchases</div><div style="color:var(--gray);font-size:14px;padding:8px 0;">No purchases yet — start scanning!</di';
+      histSection.innerHTML = '<div class="section-title">Recent Purchases</div><div style="color:var(--gray);font-size:14px;padding:8px 0;">No purchases yet — start scanning!</div>';
       return;
     }
     const totalSpent = sessions.reduce((s,sess) => s + (sess.payment?.total||0), 0);
@@ -1021,7 +1021,7 @@ async function loadHomeHistory() {
           <div class="h-name">Inzovu Supermarket</div>
           <div class="h-date">${dateStr} · ${sess.totalItems} items</div>
         </div>
-        <div class="history-amount">${(sess.payment?.al||0).toLocaleString()} <span class="curr">RWF</span></div>
+        <div class="history-amount">${(sess.payment?.total||0).toLocaleString()} <span class="curr">RWF</span></div>
       </div>`;
     }).join('');
     histSection.innerHTML = '<div class="section-title">Recent Purchases</div>' + histHTML;
@@ -1075,7 +1075,7 @@ async function scanProduct(productId) {
 
 // ============================================================
 // CART — FIXED
-// ==========================================================
+// ============================================================
 function renderCart() {
   const list    = document.getElementById('cart-items-list');
   const empty   = document.getElementById('cart-empty-state');
@@ -1113,7 +1113,7 @@ function renderCart() {
         <button class="qty-btn" onclick="changeQty('${item.product.id}',1)">+</button>
       </div>
       <div class="item-price">${(item.product.price*item.qty).toLocaleString()}<br>
-        <span style="font-size:11px;color:var(ray);font-weight:400;">RWF</span>
+        <span style="font-size:11px;color:var(--gray);font-weight:400;">RWF</span>
       </div>
     </div>`).join('');
 
@@ -1124,7 +1124,7 @@ function renderCart() {
   const ww = document.getElementById('weight-warning');
   if (totalWeight > 5) {
     ww.style.display = 'flex';
-    ww.innerHTML = `⚖️ <span>Total wt ${totalWeight.toFixed(1)}kg exceeds 5kg. Security check at exit.</span>`;
+    ww.innerHTML = `⚖️ <span>Total weight ${totalWeight.toFixed(1)}kg exceeds 5kg. Security check at exit.</span>`;
   } else { ww.style.display = 'none'; }
 }
 
@@ -1197,13 +1197,13 @@ async function processPayment() {
 function generateReceipt() {
   const total = cart.reduce((s,i) => s + i.product.price * i.qty, 0);
   const methodNames = { momo:'MTN MoMo', airtel:'Airtel Money', cash:'Cash' };
-  document.getElementById('receipt-subtitle').textContent = `Paid via ${methodNames[selectedPayment]} · Jus now`;
+  document.getElementById('receipt-subtitle').textContent = `Paid via ${methodNames[selectedPayment]} · Just now`;
   document.getElementById('receipt-total').textContent = total.toLocaleString() + ' RWF';
   document.getElementById('receipt-id').textContent = currentTxnId;
   document.getElementById('receipt-items-list').innerHTML = cart.map(item => `
     <div class="receipt-item-row">
       <div><div class="r-item-name">${item.product.emoji} ${item.product.name}</div><div class="r-item-qty">x${item.qty} × ${item.product.price.toLocaleString()} RWF</div></div>
-      <div class="r-item-price">${(item.product.price*tem.qty).toLocaleString()} RWF</div>
+      <div class="r-item-price">${(item.product.price*item.qty).toLocaleString()} RWF</div>
     </div>`).join('');
   const qp = document.getElementById('qr-pattern');
   qp.innerHTML = '';
@@ -1279,14 +1279,15 @@ function renderAdminSessions() {
       </div>
       <div class="session-items-table" id="sess-table-${sid}">
         ${!sess.items.length?'<div style="padding:12px 0;color:#2D4A30;font-size:13px;text-align:center;">Cart is empty</div>':
-          sess.items.map(item=>`<div class="sit-row            <div class="sit-emoji">${item.productSnapshot.emoji}</div>
+          sess.items.map(item=>`<div class="sit-row">
+            <div class="sit-emoji">${item.productSnapshot.emoji}</div>
             <div class="sit-name">${item.productSnapshot.name}</div>
             <div class="sit-qty">×${item.qty}</div>
             <div class="sit-price">${(item.productSnapshot.price*item.qty).toLocaleString()} RWF</div>
           </div>`).join('')}
         ${sess.items.length?`<div class="sit-total-row">
           <div><div class="sit-total-label">Cart Total</div><div class="sit-weight">${weight.toFixed(2)} kg</div></div>
-          div class="sit-total-val">${total.toLocaleString()} RWF</div>
+          <div class="sit-total-val">${total.toLocaleString()} RWF</div>
         </div>`:''}
       </div>
     </div>`;
@@ -1335,7 +1336,8 @@ function renderAdminCompleted() {
     <div>
       <div style="font-size:14px;font-weight:600;color:#8FA696;">${c.shopperName}</div>
       <div class="cr-method">${c.payment?.methodLabel||'—'} · ${c.payment?.txnId||'—'}</div>
-    </d <div style="text-align:right;">
+    </div>
+    <div style="text-align:right;">
       <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:#4D6B52;">${(c.payment?.total||0).toLocaleString()} RWF</div>
       <div class="cr-items">${c.totalItems||0} items</div>
     </div>
@@ -1375,16 +1377,16 @@ async function renderSuperAdminFull() {
       return `<div style="background:#0F0F1A;border:1px solid #1A1A2E;border-radius:16px;padding:16px;">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
           <div style="width:44px;height:44px;background:#1A1A2E;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;">${store.logo||'🏪'}</div>
-          <div style"flex:1;">
+          <div style="flex:1;">
             <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--white);font-size:15px;">${store.name}</div>
             <div style="font-size:12px;color:#3A3A5C;">${store.email} ${store.city?'· '+store.city:''}</div>
           </div>
           <div style="background:${statusColor}22;color:${statusColor};font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;">${statusLabel}</div>
         </div>
         <div style="display:flex;gap:8px;">
-          ${store.status==='ctive'
+          ${store.status==='active'
             ? `<button onclick="setSupermarketStatus('${store._id}','suspended')" style="flex:1;padding:8px;background:rgba(255,59,92,0.1);color:var(--red);border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">⏸ Suspend</button>`
-            : `<button onclick="setSupermarketStatus('${store._id}','active')" style="flex:1;padding:8px;background:rgba(0,197,102,0.1);color:var(--green);border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">▶ Activate</bu>`
+            : `<button onclick="setSupermarketStatus('${store._id}','active')" style="flex:1;padding:8px;background:rgba(0,197,102,0.1);color:var(--green);border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">▶ Activate</button>`
           }
           <button onclick="deleteSupermarket('${store._id}')" style="padding:8px 12px;background:rgba(255,59,92,0.08);color:var(--red);border:none;border-radius:8px;font-size:12px;cursor:pointer;">🗑</button>
         </div>
@@ -1393,7 +1395,7 @@ async function renderSuperAdminFull() {
   } catch(e) {
     console.warn('Super admin fetch error:', e.message);
     document.getElementById('sa-stores-list').innerHTML =
-      '<div style="text-align:center;padding:30px;color:#FF3B5C;font-size:14px;">Failed to load: ' + e.messag+ '</div>';
+      '<div style="text-align:center;padding:30px;color:#FF3B5C;font-size:14px;">Failed to load: ' + e.message + '</div>';
   }
 }
 
@@ -1449,4 +1451,3 @@ function doSuperAdminLogout() {
 </script>
 </body>
 </html>
-

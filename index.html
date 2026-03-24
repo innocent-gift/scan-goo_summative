@@ -1,732 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SCAN&GOO</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --green: #00C566; --green-dark: #009E52; --green-light: #E6FFF3;
-      --bg: #F5F7F5; --white: #FFFFFF; --black: #0D1A0F;
-      --gray: #6B7A6E; --gray-light: #D8E0DA; --red: #FF3B5C;
-      --yellow: #FFD600; --card-shadow: 0 4px 24px rgba(0,0,0,0.08);
-      --blue: #2E7CF6; --purple: #7B5EA7; --orange: #FF8C00;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--black); min-height: 100vh; display: flex; justify-content: center; }
-    #app { width: 100%; max-width: 430px; min-height: 100vh; background: var(--white); position: relative; overflow: hidden; }
-    .screen { display: none; flex-direction: column; min-height: 100vh; }
-    .screen.active { display: flex; }
-
-    /* SPLASH */
-    #screen-splash { background: var(--black); align-items: center; justify-content: center; }
-    .splash-logo { display: flex; flex-direction: column; align-items: center; animation: fadeUp 0.8s ease forwards; }
-    .splash-logo .icon { width: 90px; height: 90px; background: var(--green); border-radius: 28px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-    .splash-logo h1 { font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; color: var(--white); letter-spacing: -1px; }
-    .splash-logo h1 span { color: var(--green); }
-    .splash-logo p { color: #8FA696; font-size: 15px; margin-top: 6px; }
-    .splash-bar { width: 200px; height: 4px; background: #1E2E21; border-radius: 99px; overflow: hidden; margin-top: 40px; }
-    .splash-bar-fill { height: 100%; background: var(--green); border-radius: 99px; animation: loadBar 2s ease forwards; }
-    @keyframes loadBar { from { width: 0; } to { width: 100%; } }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* AUTH */
-    .auth-header { background: var(--black); padding: 60px 28px 40px; border-radius: 0 0 32px 32px; }
-    .auth-header h2 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--white); margin-bottom: 6px; }
-    .auth-header p { color: #8FA696; font-size: 14px; }
-    .auth-body { padding: 32px 28px; flex: 1; }
-    .auth-tabs { display: flex; background: var(--bg); border-radius: 12px; padding: 4px; margin-bottom: 28px; }
-    .auth-tab { flex: 1; padding: 10px; border: none; background: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--gray); transition: all 0.2s; }
-    .auth-tab.active { background: var(--white); color: var(--black); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    .form-group { margin-bottom: 18px; }
-    .form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--gray); margin-bottom: 6px; }
-    .form-group input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--gray-light); border-radius: 12px; font-size: 15px; font-family: 'DM Sans', sans-serif; background: var(--white); transition: border-color 0.2s; outline: none; }
-    .form-group input:focus { border-color: var(--green); }
-    .btn-primary { width: 100%; padding: 16px; background: var(--green); color: var(--white); border: none; border-radius: 14px; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-    .btn-primary:hover { background: var(--green-dark); transform: translateY(-1px); }
-    .btn-secondary { width: 100%; padding: 14px; background: transparent; color: var(--black); border: 1.5px solid var(--gray-light); border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; margin-top: 12px; }
-    .btn-secondary:hover { border-color: var(--green); color: var(--green); }
-
-    /* HOME */
-    #screen-home { background: var(--bg); }
-    .home-header { background: var(--black); padding: 56px 24px 32px; border-radius: 0 0 32px 32px; position: relative; overflow: hidden; }
-    .home-header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(0,197,102,0.15) 0%, transparent 70%); border-radius: 50%; }
-    .home-header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
-    .home-greeting { color: #8FA696; font-size: 13px; }
-    .home-name { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; color: var(--white); }
-    .avatar { width: 44px; height: 44px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; color: var(--white); font-size: 16px; }
-    .scan-btn { background: var(--green); border: none; border-radius: 20px; padding: 20px 24px; display: flex; align-items: center; gap: 16px; cursor: pointer; width: 100%; transition: all 0.2s; }
-    .scan-btn:hover { transform: scale(1.02); }
-    .scan-btn-icon { width: 52px; height: 52px; background: rgba(255,255,255,0.2); border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .scan-btn-text { text-align: left; }
-    .scan-btn-text strong { display: block; color: var(--white); font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
-    .scan-btn-text span { color: rgba(255,255,255,0.7); font-size: 13px; }
-    .home-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px 16px; }
-    .stat-card { background: var(--white); border-radius: 18px; padding: 18px; box-shadow: var(--card-shadow); }
-    .stat-card .stat-label { font-size: 12px; color: var(--gray); margin-bottom: 6px; }
-    .stat-card .stat-value { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; }
-    .stat-card .stat-unit { font-size: 13px; color: var(--gray); font-weight: 400; }
-    .home-section { padding: 4px 16px 16px; }
-    .section-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 12px; }
-    .history-item { background: var(--white); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-    .history-icon { width: 40px; height: 40px; background: var(--green-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .history-info { flex: 1; }
-    .history-info .h-name { font-size: 14px; font-weight: 500; }
-    .history-info .h-date { font-size: 12px; color: var(--gray); }
-    .history-amount { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
-    .history-amount .curr { font-size: 11px; color: var(--gray); font-weight: 400; }
-
-    /* SCANNER */
-    #screen-scanner { background: var(--black); }
-    .scanner-header { padding: 56px 24px 20px; display: flex; align-items: center; gap: 16px; }
-    .back-btn { width: 42px; height: 42px; background: rgba(255,255,255,0.1); border: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-    .scanner-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--white); }
-    .camera-view { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .camera-bg { position: absolute; inset: 0; background: #111; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .camera-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
-    .scan-frame { position: relative; z-index: 10; width: 240px; height: 240px; }
-    .scan-corner { position: absolute; width: 28px; height: 28px; border-color: var(--green); border-style: solid; }
-    .c-tl { top: 0; left: 0; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
-    .c-tr { top: 0; right: 0; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
-    .c-bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
-    .c-br { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
-    .scan-line { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--green), transparent); animation: scanMove 1.8s ease-in-out infinite; }
-    @keyframes scanMove { 0% { top: 20px; } 50% { top: 200px; } 100% { top: 20px; } }
-    .scan-hint { position: absolute; bottom: 60px; left: 0; right: 0; text-align: center; color: rgba(255,255,255,0.7); font-size: 14px; }
-    .demo-products-panel { background: var(--white); border-radius: 28px 28px 0 0; padding: 20px 20px 30px; }
-    .demo-panel-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 14px; color: var(--gray); text-align: center; text-transform: uppercase; letter-spacing: 1px; }
-    .demo-products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .demo-product-btn { background: var(--bg); border: none; border-radius: 14px; padding: 14px; text-align: left; cursor: pointer; transition: all 0.2s; }
-    .demo-product-btn:hover { background: var(--green-light); }
-    .demo-product-btn .dp-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
-    .demo-product-btn .dp-price { font-size: 13px; color: var(--green); font-weight: 700; }
-    .demo-product-btn .dp-weight { font-size: 11px; color: var(--gray); }
-
-    /* CART */
-    #screen-cart { background: var(--bg); }
-    .cart-header { background: var(--white); padding: 56px 24px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .cart-header-left { display: flex; align-items: center; gap: 14px; }
-    .cart-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; }
-    .cart-count { background: var(--green); color: var(--white); width: 24px; height: 24px; border-radius: 50%; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-    .cart-items { padding: 16px; flex: 1; overflow-y: auto; }
-    .cart-item { background: var(--white); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; box-shadow: var(--card-shadow); animation: slideIn 0.3s ease; }
-    @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-    .item-emoji { font-size: 28px; width: 44px; text-align: center; flex-shrink: 0; }
-    .item-info { flex: 1; min-width: 0; }
-    .item-name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-meta { font-size: 12px; color: var(--gray); margin-top: 2px; }
-    .item-controls { display: flex; align-items: center; gap: 8px; }
-    .qty-btn { width: 28px; height: 28px; border: none; border-radius: 8px; background: var(--bg); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; transition: all 0.15s; }
-    .qty-btn:hover { background: var(--green-light); color: var(--green); }
-    .qty-btn.remove:hover { background: #FFE5EA; color: var(--red); }
-    .qty-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; min-width: 20px; text-align: center; }
-    .item-price { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; text-align: right; min-width: 65px; }
-    .cart-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--gray); gap: 12px; padding: 40px; }
-    .cart-footer { background: var(--white); border-radius: 24px 24px 0 0; padding: 20px 20px 30px; box-shadow: 0 -4px 20px rgba(0,0,0,0.06); }
-    .cart-total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .cart-total-row .label { color: var(--gray); font-size: 14px; }
-    .cart-total-row .value { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; }
-    .cart-total-row.grand .value { font-size: 24px; color: var(--green); }
-    .cart-total-row.grand .label { font-size: 16px; color: var(--black); font-weight: 600; }
-    .divider { border: none; border-top: 1px dashed var(--gray-light); margin: 12px 0; }
-    .weight-warning { background: #FFF8E1; border: 1px solid var(--yellow); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #7A6000; margin-bottom: 14px; display: flex; gap: 8px; align-items: center; }
-    .add-more-btn { border: none; background: none; color: var(--green); font-size: 14px; font-weight: 600; cursor: pointer; padding: 6px 0; font-family: 'DM Sans', sans-serif; }
-
-    /* CHECKOUT */
-    #screen-checkout { background: var(--bg); }
-    .checkout-header { background: var(--black); padding: 56px 24px 28px; border-radius: 0 0 32px 32px; }
-    .checkout-header h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--white); margin-bottom: 4px; }
-    .checkout-header p { color: #8FA696; font-size: 14px; }
-    .checkout-body { padding: 20px 16px; flex: 1; }
-    .checkout-summary-card { background: var(--white); border-radius: 18px; padding: 18px; margin-bottom: 16px; box-shadow: var(--card-shadow); }
-    .summary-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 10px; }
-    .summary-row:last-child { margin-bottom: 0; }
-    .summary-row .s-label { color: var(--gray); }
-    .summary-row .s-val { font-weight: 600; }
-    .summary-row.total .s-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--black); }
-    .summary-row.total .s-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--green); }
-    .payment-section { margin-bottom: 16px; }
-    .payment-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 12px; }
-    .payment-options { display: flex; flex-direction: column; gap: 10px; }
-    .payment-option { background: var(--white); border: 2px solid var(--gray-light); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s; }
-    .payment-option.selected { border-color: var(--green); background: var(--green-light); }
-    .payment-option-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-    .momo-icon { background: #FFCF00; } .airtel-icon { background: #FF2800; } .cash-icon { background: #E8F5E9; }
-    .payment-option-info { flex: 1; }
-    .payment-option-info strong { display: block; font-size: 14px; margin-bottom: 2px; }
-    .payment-option-info span { font-size: 12px; color: var(--gray); }
-    .radio-dot { width: 20px; height: 20px; border: 2px solid var(--gray-light); border-radius: 50%; flex-shrink: 0; transition: all 0.2s; }
-    .payment-option.selected .radio-dot { border-color: var(--green); background: var(--green); box-shadow: 0 0 0 3px rgba(0,197,102,0.2); }
-    .pay-now-btn { width: 100%; padding: 18px; background: var(--green); color: var(--white); border: none; border-radius: 16px; font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
-    .pay-now-btn:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,197,102,0.3); }
-
-    /* PROCESSING */
-    #screen-processing { background: var(--black); align-items: center; justify-content: center; }
-    .processing-content { text-align: center; color: var(--white); padding: 40px; }
-    .processing-spinner { width: 80px; height: 80px; border: 4px solid rgba(0,197,102,0.2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 28px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .processing-content h2 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 8px; }
-    .processing-content p { color: #8FA696; font-size: 15px; }
-
-    /* RECEIPT */
-    #screen-receipt { background: var(--bg); }
-    .receipt-header { background: var(--black); padding: 56px 24px 36px; border-radius: 0 0 40px 40px; text-align: center; }
-    .success-icon { width: 72px; height: 72px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 0 0 12px rgba(0,197,102,0.15); }
-    .receipt-header h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--white); margin-bottom: 6px; }
-    .receipt-header p { color: #8FA696; font-size: 14px; }
-    .receipt-body { padding: 20px 16px; flex: 1; }
-    .receipt-card { background: var(--white); border-radius: 20px; padding: 20px; margin-bottom: 14px; box-shadow: var(--card-shadow); }
-    .receipt-card-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
-    .receipt-item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--bg); font-size: 14px; }
-    .receipt-item-row:last-child { border-bottom: none; }
-    .r-item-name { font-weight: 500; }
-    .r-item-qty { color: var(--gray); font-size: 12px; }
-    .r-item-price { font-weight: 700; }
-    .qr-container { text-align: center; padding: 20px 0 10px; }
-    .qr-box { display: inline-block; background: var(--white); border: 3px solid var(--black); border-radius: 16px; padding: 16px; }
-    .qr-pattern { width: 140px; height: 140px; display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 2px; }
-    .qr-cell { border-radius: 2px; }
-    .qr-label { font-size: 11px; color: var(--gray); margin-top: 10px; }
-    .qr-id { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; background: var(--green-light); color: var(--green); border-radius: 8px; padding: 4px 12px; margin-top: 8px; display: inline-block; }
-    .done-btn { width: 100%; padding: 18px; background: var(--black); color: var(--white); border: none; border-radius: 16px; font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 4px; }
-    .done-btn:hover { background: #1E2E21; }
-
-    /* ===================== ADMIN ===================== */
-    #screen-admin { background: #0A0F0B; overflow-y: auto; }
-
-    .admin-topbar {
-      background: #0A0F0B;
-      padding: 52px 20px 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
-      border-bottom: 1px solid #1A2E1E;
-    }
-    .admin-logo { display: flex; align-items: center; gap: 10px; }
-    .admin-logo-dot { width: 10px; height: 10px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-    .admin-logo span { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: var(--white); }
-    .admin-logo span em { color: var(--green); font-style: normal; }
-    .admin-logout { background: rgba(255,255,255,0.08); border: none; color: #8FA696; font-size: 13px; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-    .admin-logout:hover { color: var(--white); }
-
-    .admin-kpi-row {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 10px; padding: 16px 16px 8px;
-    }
-    .kpi-card {
-      background: #121C14;
-      border: 1px solid #1E3222;
-      border-radius: 16px; padding: 14px 12px;
-      text-align: center;
-    }
-    .kpi-val { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--white); line-height: 1; }
-    .kpi-val.green { color: var(--green); }
-    .kpi-val.red { color: var(--red); }
-    .kpi-label { font-size: 11px; color: #4D6B52; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-
-    .admin-section-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 16px 10px;
-    }
-    .admin-section-header h3 {
-      font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
-      color: var(--white); display: flex; align-items: center; gap: 8px;
-    }
-    .live-badge {
-      background: rgba(0,197,102,0.15); color: var(--green);
-      font-size: 10px; font-weight: 700; padding: 3px 8px;
-      border-radius: 99px; letter-spacing: 1px;
-    }
-    .red-badge {
-      background: rgba(255,59,92,0.15); color: var(--red);
-      font-size: 11px; font-weight: 700; padding: 3px 8px;
-      border-radius: 99px;
-    }
-
-    /* LIVE SESSION CARDS */
-    .sessions-list { padding: 0 16px 12px; display: flex; flex-direction: column; gap: 12px; }
-    .session-card {
-      background: #121C14;
-      border: 1px solid #1E3222;
-      border-radius: 20px;
-      overflow: hidden;
-      transition: all 0.3s;
-    }
-    .session-card.new-flash { animation: flashGreen 0.6s ease; }
-    @keyframes flashGreen { 0%,100% { border-color: #1E3222; } 50% { border-color: var(--green); box-shadow: 0 0 16px rgba(0,197,102,0.3); } }
-    .session-header {
-      padding: 14px 16px;
-      display: flex; align-items: center; gap: 12px;
-      cursor: pointer;
-    }
-    .session-avatar {
-      width: 40px; height: 40px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px;
-      flex-shrink: 0;
-    }
-    .session-info { flex: 1; }
-    .session-name { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
-    .session-meta { font-size: 12px; color: #4D6B52; }
-    .session-summary { text-align: right; }
-    .session-total { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; color: var(--green); }
-    .session-item-count { font-size: 11px; color: #4D6B52; margin-top: 2px; }
-    .session-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; box-shadow: 0 0 6px var(--green); }
-    .session-status-dot.idle { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
-    .session-status-dot.done { background: var(--gray); box-shadow: none; }
-
-    .session-items-table {
-      border-top: 1px solid #1A2E1E;
-      padding: 0 16px 14px;
-      display: none;
-    }
-    .session-items-table.open { display: block; }
-    .sit-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-      font-size: 13px;
-    }
-    .sit-row:last-child { border-bottom: none; }
-    .sit-emoji { font-size: 18px; width: 28px; text-align: center; }
-    .sit-name { flex: 1; color: #C8D8CB; font-weight: 500; }
-    .sit-qty { background: rgba(0,197,102,0.12); color: var(--green); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
-    .sit-price { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--white); font-size: 13px; min-width: 75px; text-align: right; }
-    .sit-total-row {
-      display: flex; justify-content: space-between;
-      align-items: center; padding-top: 10px; margin-top: 4px;
-      border-top: 1px dashed #1E3222;
-    }
-    .sit-total-label { font-size: 12px; color: #4D6B52; text-transform: uppercase; letter-spacing: 0.5px; }
-    .sit-total-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--green); }
-    .sit-weight { font-size: 11px; color: #4D6B52; }
-
-    /* INVENTORY TRACKER */
-    .inventory-table { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
-    .inv-row {
-      background: #121C14;
-      border: 1px solid #1E3222;
-      border-radius: 14px;
-      padding: 12px 14px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .inv-emoji { font-size: 22px; width: 36px; text-align: center; }
-    .inv-name-col { flex: 1; }
-    .inv-name { font-size: 13px; font-weight: 600; color: var(--white); margin-bottom: 2px; }
-    .inv-price { font-size: 11px; color: #4D6B52; }
-    .inv-sold { text-align: center; min-width: 44px; }
-    .inv-sold-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--white); }
-    .inv-sold-label { font-size: 10px; color: #4D6B52; }
-    .inv-revenue { text-align: right; min-width: 80px; }
-    .inv-rev-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--green); }
-    .inv-rev-label { font-size: 10px; color: #4D6B52; }
-    .inv-bar-wrap { width: 100%; height: 4px; background: #1E3222; border-radius: 99px; margin-top: 8px; }
-    .inv-bar-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.5s ease; }
-
-    /* ALERTS */
-    .alerts-list { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 8px; }
-    .alert-card {
-      background: rgba(255,59,92,0.08);
-      border: 1px solid rgba(255,59,92,0.25);
-      border-radius: 14px; padding: 12px 14px;
-      display: flex; align-items: flex-start; gap: 10px;
-    }
-    .alert-icon { font-size: 20px; flex-shrink: 0; }
-    .alert-body { flex: 1; }
-    .alert-body strong { display: block; font-size: 13px; color: var(--white); margin-bottom: 2px; }
-    .alert-body span { font-size: 12px; color: #8FA696; }
-    .alert-time { font-size: 11px; color: #4D6B52; white-space: nowrap; }
-
-    /* COMPLETED SESSIONS */
-    .completed-list { padding: 0 16px 40px; display: flex; flex-direction: column; gap: 8px; }
-    .completed-row {
-      background: #0F180F;
-      border: 1px solid #162116;
-      border-radius: 14px; padding: 12px 14px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .completed-row .cr-name { flex: 1; font-size: 13px; color: #6B7A6E; }
-    .completed-row .cr-items { font-size: 12px; color: #4D6B52; }
-    .completed-row .cr-total { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: #4D6B52; }
-    .completed-row .cr-method { font-size: 11px; color: #4D6B52; }
-    .completed-tick { color: var(--green); font-size: 16px; }
-    .empty-state { text-align: center; padding: 30px; color: #2D4A30; font-size: 14px; }
-
-    /* NAV */
-    .bottom-nav { background: var(--white); display: flex; align-items: center; padding: 12px 16px 24px; border-top: 1px solid var(--bg); position: sticky; bottom: 0; }
-    .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 12px; transition: all 0.2s; }
-    .nav-btn span { font-size: 11px; color: var(--gray); font-weight: 500; }
-    .nav-btn.active span { color: var(--green); }
-    .nav-scan-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; cursor: pointer; padding: 6px; }
-    .nav-scan-circle { width: 52px; height: 52px; background: var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -24px; box-shadow: 0 4px 14px rgba(0,197,102,0.4); transition: all 0.2s; }
-    .nav-scan-btn span { font-size: 11px; color: var(--gray); font-weight: 500; }
-
-    /* tag */
-    .tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .tag-age { background: #FFE5E5; color: var(--red); }
-    .tag-ok { background: var(--green-light); color: var(--green-dark); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SCAN&GOO - Complete Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-teal: #005a64;
+            --primary-green: #00C566;
+            --primary-green-dark: #009e52;
+            --bg-light: #f4f7f6;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); overflow-x: hidden; }
+        .screen { display: none; min-height: 100vh; max-width: 450px; margin: 0 auto; background: white; position: relative; overflow-y: auto; overflow-x: hidden; box-shadow: var(--shadow-md); }
+        .active-screen { display: block; }
+        .btn-teal { background-color: var(--primary-teal); color: white; padding: 14px; border-radius: 12px; width: 100%; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-teal:hover { background-color: #004a52; transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .btn-green { background-color: var(--primary-green); color: white; padding: 14px; border-radius: 12px; width: 100%; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-green:hover { background-color: var(--primary-green-dark); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .btn-red { background-color: #ff3b5c; color: white; padding: 10px 16px; border-radius: 10px; font-weight: 600; transition: all 0.2s; border: none; cursor: pointer; }
+        .btn-red:hover { background-color: #e02e4e; transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary-green); color: var(--primary-green); padding: 12px; border-radius: 12px; font-weight: 600; transition: all 0.2s; cursor: pointer; }
+        .scanner-viewport { height: 300px; background: linear-gradient(135deg, #111 0%, #1a1a1a 100%); border: 2px solid var(--primary-green); position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+        .scanner-line { position: absolute; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, var(--primary-green), transparent); top: 0; animation: scan 2s infinite linear; box-shadow: 0 0 12px var(--primary-green); }
+        @keyframes scan { 0% { top: 0; opacity: 0.5; } 50% { top: 100%; opacity: 1; } 100% { top: 0; opacity: 0.5; } }
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 12px 24px; border-radius: 50px; z-index: 1001; animation: fadeInOut 2.5s ease; font-size: 14px; font-weight: 500; white-space: nowrap; box-shadow: var(--shadow-md); }
+        @keyframes fadeInOut { 0% { opacity: 0; transform: translateX(-50%) translateY(20px); } 15% { opacity: 1; transform: translateX(-50%) translateY(0); } 85% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(20px); } }
+        .cart-items-scroll { max-height: 50vh; overflow-y: auto; padding-right: 4px; }
+        #floating-cart-btn { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,197,102,0.4); cursor: pointer; z-index: 1000; transition: all 0.3s ease; }
+        .floating-cart-count { position: absolute; top: -5px; right: -5px; background: #ff3b5c; color: white; border-radius: 50%; min-width: 22px; height: 22px; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+        .supermarket-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+        .supermarket-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .transaction-item { border-left: 3px solid var(--primary-green); padding: 12px; margin-bottom: 8px; background: #f9f9f9; border-radius: 8px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 24px; padding: 24px; width: 90%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+        .platform-login-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; padding: 32px; text-align: center; }
+    </style>
 </head>
 <body>
-<div id="app">
 
-  <!-- SPLASH -->
-  <div id="screen-splash" class="screen active">
-    <div class="splash-logo">
-      <div class="icon">
-        <svg viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="5" y="5" width="16" height="16" rx="2" fill="white"/>
-          <rect x="8" y="8" width="10" height="10" rx="1" fill="#00C566"/>
-          <rect x="29" y="5" width="16" height="16" rx="2" fill="white"/>
-          <rect x="32" y="8" width="10" height="10" rx="1" fill="#00C566"/>
-          <rect x="5" y="29" width="16" height="16" rx="2" fill="white"/>
-          <rect x="8" y="32" width="10" height="10" rx="1" fill="#00C566"/>
-          <rect x="29" y="29" width="5" height="5" fill="white"/>
-          <rect x="37" y="29" width="8" height="5" fill="white"/>
-          <rect x="29" y="37" width="16" height="8" rx="2" fill="white"/>
-        </svg>
-      </div>
-      <h1>SCAN<span>&</span>GOO</h1>
-      <p>Smart Shopping · Inzovu Supermarket</p>
-      <div class="splash-bar"><div class="splash-bar-fill"></div></div>
-    </div>
-  </div>
-
-  <!-- AUTH -->
-  <div id="screen-auth" class="screen">
-    <div class="auth-header">
-      <h2>Welcome Back 👋</h2>
-      <p>Sign in to start your smart shopping session</p>
-    </div>
-    <div class="auth-body">
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchAuthTab('login', this)">Login</button>
-        <button class="auth-tab" onclick="switchAuthTab('register', this)">Register</button>
-      </div>
-      <div id="auth-login">
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="login-email" placeholder="you@example.com"/>
+    <!-- LOGIN SCREEN -->
+    <div id="screen-login" class="screen active-screen p-8 text-center">
+        <div class="mt-10 mb-8">
+            <div class="w-24 h-24 bg-gradient-to-br from-[#005a64] to-[#00C566] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <span class="text-5xl">🛒</span>
+            </div>
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-[#005a64] to-[#00C566] bg-clip-text text-transparent">SCAN&GOO</h1>
+            <p class="text-gray-500 mt-2">Complete Management System</p>
         </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="login-pass" placeholder="••••••••"/>
+        
+        <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+            <div class="flex gap-2 mb-6">
+                <button id="shopper-tab" class="flex-1 bg-[#005a64] text-white px-4 py-2 rounded-xl text-sm font-semibold transition">Shopper</button>
+                <button id="admin-tab" class="flex-1 bg-gray-100 px-4 py-2 rounded-xl text-sm font-semibold transition">Admin</button>
+                <button id="platform-tab" class="flex-1 bg-gray-100 px-4 py-2 rounded-xl text-sm font-semibold transition">Platform</button>
+            </div>
+            
+            <!-- Shopper Login -->
+            <div id="shopper-login">
+                <div id="shopper-error" style="display:none;" class="text-red-500 text-sm bg-red-50 p-3 rounded-xl mb-3"></div>
+                <div id="shopper-register" style="display:none;">
+                    <input type="text" id="reg-name" placeholder="Full Name" class="w-full p-3 border border-gray-200 rounded-xl mb-3 bg-gray-50">
+                    <input type="tel" id="reg-phone" placeholder="Phone (+250...)" class="w-full p-3 border border-gray-200 rounded-xl mb-3 bg-gray-50">
+                </div>
+                <input type="email" id="login-email" placeholder="Email address" class="w-full p-3 border border-gray-200 rounded-xl mb-3 bg-gray-50">
+                <input type="password" id="login-password" placeholder="Password" class="w-full p-3 border border-gray-200 rounded-xl mb-4 bg-gray-50">
+                <button id="shopper-login-btn" onclick="handleShopperLogin()" class="btn-green mb-2">Sign In as Shopper</button>
+                <button onclick="toggleRegister()" id="toggle-reg-btn" class="w-full text-sm text-[#005a64] font-semibold py-2">Don't have an account? Register →</button>
+            </div>
+            
+            <!-- Supermarket Admin Login -->
+            <div id="admin-login" style="display:none;">
+                <div class="platform-login-card">
+                    <div class="text-white mb-4">
+                        <div class="text-5xl mb-2">🏪</div>
+                        <h3 class="text-xl font-bold">Supermarket Admin</h3>
+                        <p class="text-xs opacity-80 mt-1">Use your admin credentials</p>
+                    </div>
+                    <div id="admin-error" style="display:none;" class="text-red-200 text-sm bg-red-900 bg-opacity-30 p-3 rounded-xl mb-3"></div>
+                    <input type="email" id="admin-email" placeholder="Admin Email" class="w-full p-3 rounded-xl mb-3 bg-white" autocomplete="off">
+                    <input type="password" id="admin-password" placeholder="Admin Password" class="w-full p-3 rounded-xl mb-3 bg-white" autocomplete="off">
+                    <button onclick="handleSupermarketAdminLogin()" class="w-full bg-white text-purple-600 font-bold py-3 rounded-xl hover:bg-gray-100 transition">Access Dashboard →</button>
+                </div>
+            </div>
+            
+            <!-- Platform Owner Login -->
+            <div id="platform-login" style="display:none;">
+                <div class="platform-login-card">
+                    <div class="text-white mb-4">
+                        <div class="text-5xl mb-2">👑</div>
+                        <h3 class="text-xl font-bold">Platform Owner</h3>
+                        <p class="text-xs opacity-80 mt-1">Super admin — manages all supermarkets</p>
+                    </div>
+                    <div id="platform-error" style="display:none;" class="text-red-200 text-sm bg-red-900 bg-opacity-30 p-3 rounded-xl mb-3"></div>
+                    <input type="email" id="platform-email" placeholder="Platform Email" class="w-full p-3 rounded-xl mb-3 bg-white" autocomplete="off">
+                    <input type="password" id="platform-master-password" placeholder="Master Password" class="w-full p-3 rounded-xl mb-3 bg-white" autocomplete="off">
+                    <button onclick="handlePlatformLogin()" class="w-full bg-white text-purple-600 font-bold py-3 rounded-xl hover:bg-gray-100 transition">Access Platform →</button>
+                </div>
+            </div>
         </div>
-        <div id="auth-error" style="display:none;background:#FFE5EA;border:1px solid var(--red);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;"></div>
-        <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign In as Shopper</button>
-        <button class="btn-secondary" id="admin-btn" onclick="doAdminLogin()">Sign In as Admin →</button>
-      </div>
-      <div id="auth-register" style="display:none;">
-        <div id="reg-success" style="display:none;background:#E6FFF3;border:1px solid #00C566;border-radius:10px;padding:10px 14px;font-size:13px;color:#009E52;margin-bottom:14px;"></div>
-        <div id="reg-error" style="display:none;background:#FFE5EA;border:1px solid var(--red);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:14px;"></div>
-        <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="e.g. Amahoro Jean"/></div>
-        <div class="form-group"><label>Email Address</label><input type="email" id="reg-email" placeholder="you@example.com"/></div>
-        <div class="form-group"><label>Phone Number</label><input type="tel" id="reg-phone" placeholder="+250 7XX XXX XXX"/></div>
-        <div class="form-group"><label>Create Password</label><input type="password" id="reg-pass" placeholder="Minimum 6 characters"/></div>
-        <button class="btn-primary" id="reg-btn" onclick="doRegister()">Create Account</button>
-      </div>
     </div>
-  </div>
 
-  <!-- HOME -->
-  <div id="screen-home" class="screen">
-    <div class="home-header">
-      <div class="home-header-top">
-        <div>
-          <div class="home-greeting">Good morning,</div>
-          <div class="home-name">Amahoro Jean</div>
+    <!-- PLATFORM OWNER DASHBOARD -->
+    <div id="screen-platform-dashboard" class="screen p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-[#005a64]">Platform Owner</h2>
+                <p class="text-xs text-gray-500">Supermarket Management</p>
+            </div>
+            <button onclick="logout()" class="text-red-500 text-sm font-semibold">Logout</button>
         </div>
-        <div class="avatar">AJ</div>
-      </div>
-      <button class="scan-btn" onclick="gotoScanner()">
-        <div class="scan-btn-icon">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 text-white">
+                <p class="text-xs opacity-90">Total Supermarkets</p>
+                <p class="text-2xl font-bold" id="total-supermarkets">0</p>
+            </div>
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+                <p class="text-xs opacity-90">Total Transactions</p>
+                <p class="text-2xl font-bold" id="total-transactions">0</p>
+            </div>
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+                <p class="text-xs opacity-90">Total Revenue</p>
+                <p class="text-2xl font-bold" id="total-revenue">0 RWF</p>
+            </div>
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-4 text-white">
+                <p class="text-xs opacity-90">Active Today</p>
+                <p class="text-2xl font-bold" id="active-supermarkets">0</p>
+            </div>
         </div>
-        <div class="scan-btn-text">
-          <strong>Scan &amp; Shop</strong>
-          <span>Point at any product barcode</span>
+
+        <!-- Add New Supermarket -->
+        <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+            <h3 class="font-bold mb-3 flex items-center gap-2"><span>🏪</span> Register New Supermarket</h3>
+            <div id="platform-add-error" style="display:none;" class="text-red-500 text-sm bg-red-50 p-3 rounded-xl mb-3"></div>
+            <input type="text" id="new-sup-name" placeholder="Supermarket Name" class="w-full p-3 border border-gray-200 rounded-xl mb-2 bg-gray-50">
+            <input type="text" id="new-sup-location" placeholder="Location (e.g. Remera, Kigali)" class="w-full p-3 border border-gray-200 rounded-xl mb-2 bg-gray-50">
+            <input type="email" id="new-sup-email" placeholder="Contact Email" class="w-full p-3 border border-gray-200 rounded-xl mb-2 bg-gray-50">
+            <input type="tel" id="new-sup-phone" placeholder="Phone Number" class="w-full p-3 border border-gray-200 rounded-xl mb-3 bg-gray-50">
+            <button onclick="addSupermarket()" id="add-sup-btn" class="btn-green w-full">Register Supermarket →</button>
         </div>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-      </button>
+
+        <h3 class="font-bold mb-3">📋 Registered Supermarkets</h3>
+        <div id="platform-supermarkets-list" class="space-y-3 max-h-96 overflow-y-auto pb-20"></div>
     </div>
-    <div class="home-stats">
-      <div class="stat-card"><div class="stat-label">Today's Sessions</div><div class="stat-value">3</div></div>
-      <div class="stat-card"><div class="stat-label">Total Spent</div><div class="stat-value">12,500 <span class="stat-unit">RWF</span></div></div>
-      <div class="stat-card"><div class="stat-label">Items Scanned</div><div class="stat-value">18</div></div>
-      <div class="stat-card"><div class="stat-label">Time Saved</div><div class="stat-value">~14 <span class="stat-unit">min</span></div></div>
-    </div>
-    <div class="home-section">
-      <div class="section-title">Recent Purchases</div>
-      <div class="history-item"><div class="history-icon">🛒</div><div class="history-info"><div class="h-name">Inzovu Supermarket</div><div class="h-date">Today, 09:15 AM · 5 items</div></div><div class="history-amount">4,350 <span class="curr">RWF</span></div></div>
-      <div class="history-item"><div class="history-icon">🛒</div><div class="history-info"><div class="h-name">Inzovu Supermarket</div><div class="h-date">Yesterday, 06:40 PM · 3 items</div></div><div class="history-amount">2,700 <span class="curr">RWF</span></div></div>
-    </div>
-    <div class="bottom-nav">
-      <button class="nav-btn active" onclick="showScreen('home')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span>Home</span>
-      </button>
-      <button class="nav-scan-btn" onclick="gotoScanner()">
-        <div class="nav-scan-circle">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+
+    <!-- SUPERMARKET ADMIN DASHBOARD -->
+    <div id="screen-supermarket-dashboard" class="screen p-6">
+        <div class="flex justify-between items-center mb-6">
+            <button onclick="logout()" class="text-gray-600 text-2xl">←</button>
+            <div>
+                <h2 class="text-xl font-bold text-[#005a64]" id="dashboard-supermarket-name">Dashboard</h2>
+                <p class="text-xs text-gray-500">Admin View</p>
+            </div>
+            <button onclick="logout()" class="text-red-500 text-sm font-semibold">Logout</button>
         </div>
-        <span>Scan</span>
-      </button>
-      <button class="nav-btn" onclick="showScreen('cart')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        <span>Cart</span>
-      </button>
-    </div>
-  </div>
 
-  <!-- SCANNER -->
-  <div id="screen-scanner" class="screen">
-    <div class="scanner-header">
-      <button class="back-btn" onclick="showScreen('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></button>
-      <div class="scanner-title">Scan Product</div>
-    </div>
-    <div class="camera-view">
-      <div class="camera-bg">
-        <svg width="100%" height="100%" viewBox="0 0 400 300" opacity="0.3"><rect width="400" height="300" fill="#1a2e1a"/></svg>
-        <div class="camera-overlay"></div>
-      </div>
-      <div class="scan-frame">
-        <div class="scan-corner c-tl"></div><div class="scan-corner c-tr"></div>
-        <div class="scan-corner c-bl"></div><div class="scan-corner c-br"></div>
-        <div class="scan-line"></div>
-      </div>
-      <div class="scan-hint">Position barcode within the frame</div>
-    </div>
-    <div class="demo-products-panel">
-      <div class="demo-panel-title">Tap to simulate scan</div>
-      <div class="demo-products-grid" id="demo-products-grid"></div>
-    </div>
-  </div>
-
-  <!-- CART -->
-  <div id="screen-cart" class="screen">
-    <div class="cart-header">
-      <div class="cart-header-left">
-        <button class="back-btn" style="background:var(--bg)" onclick="showScreen('home')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0D1A0F" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></button>
-        <span class="cart-title">My Cart</span>
-        <span class="cart-count" id="cart-count">0</span>
-      </div>
-      <button onclick="clearCart()" style="background:none;border:none;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;">Clear</button>
-    </div>
-    <div class="cart-items" id="cart-items-list">
-      <div class="cart-empty" id="cart-empty-state">
-        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        <p>Your cart is empty</p>
-        <button class="btn-primary" style="width:auto;padding:12px 24px;" onclick="gotoScanner()">Start Scanning</button>
-      </div>
-    </div>
-    <div class="cart-footer" id="cart-footer" style="display:none;">
-      <div id="weight-warning" style="display:none;" class="weight-warning">⚖️ <span>Weight alert</span></div>
-      <div class="cart-total-row"><span class="label">Subtotal</span><span class="value" id="cart-subtotal">0 RWF</span></div>
-      <div class="cart-total-row"><span class="label">Total Weight</span><span class="value" id="cart-weight">0 kg</span></div>
-      <hr class="divider"/>
-      <div class="cart-total-row grand"><span class="label">Grand Total</span><span class="value" id="cart-grand-total">0 RWF</span></div>
-      <div style="display:flex;gap:10px;in-top:14px;">
-        <button class="add-more-btn" onclick="gotoScanner()">+ Add Items</button>
-        <button class="btn-primary" style="flex:1;" onclick="gotoCheckout()">Proceed to Checkout</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CHECKOUT -->
-  <div id="screen-checkout" class="screen">
-    <div class="checkout-header">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
-        <button class="back-btn" onclick="showScreen('cart')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg></button>
-        <div><h2 style="margin-bottom:2px;">Checkout</h2><p>Choose your payment method</p></div>
-      </div>
-    </div>
-    <div class="checkout-body">
-      <div class="checkout-summary-card">
-        <div class="receipt-card-title" style="margin-bottom:12px;">Order Summary</div>
-        <div id="checkout-items-preview"></div>
-        <hr class="divider" style="margin:10px 0;"/>
-        <div class="summary-row total"><span class="s-label">Total</span><span class="s-val" id="checkout-total">0 RWF</span></div>
-      </div>
-      <div class="payment-section">
-        <div class="payment-title">Payment Method</div>
-        <div class="payment-options">
-          <div class="payment-option selected" onclick="selectPayment('momo', this)">
-            <div class="payment-option-icon momo-icon">📱</div>
-            <div class="payment-option-info"><strong>MTN Mobile Mon</strong><span>Instant payment via MoMo</span></div>
-            <div class="radio-dot"></div>
-          </div>
-          <div class="payment-option" onclick="selectPayment('airtel', this)">
-            <div class="payment-option-icon airtel-icon">📲</div>
-            <div class="payment-option-info"><strong>Airtel Money</strong><span>Pay with Airtel Money wallet</span></div>
-            <div class="radio-dot"></div>
-          </div>
-          <div class="payment-option" onclick="selectPayment('cash', thi">
-            <div class="payment-option-icon cash-icon">💵</div>
-            <div class="payment-option-info"><strong>Cash at Counter</strong><span>Pay at the exit desk</span></div>
-            <div class="radio-dot"></div>
-          </div>
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-4 text-white">
+                <p class="text-xs opacity-90">Today's Revenue</p>
+                <p class="text-2xl font-bold" id="daily-revenue">0 RWF</p>
+            </div>
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-4 text-white">
+                <p class="text-xs opacity-90">Today's Transactions</p>
+                <p class="text-2xl font-bold" id="daily-transactions">0</p>
+            </div>
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-4 text-white">
+                <p class="text-xs opacity-90">Items In Carts</p>
+                <p class="text-2xl font-bold" id="daily-items">0</p>
+            </div>
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-4 text-white">
+                <p class="text-xs opacity-90">Live Cart Value</p>
+                <p class="text-2xl font-bold" id="avg-transaction">0 RWF</p>
+            </div>
         </div>
-        <div class="phone-input-wrapper" id="phone-input-wrapper">
-          <div class="form-group" style="margin-bottom:0;margin-top:12px;"><label>Confirm Phone Number</label><input type="tel" id="checkout-phone" value="+250 788 123 456"/></div>
-      </div>
-      </div>
-      <button class="pay-now-btn" onclick="processPayment()">PAY NOW →</button>
-    </div>
-  </div>
 
-  <!-- PROCESSING -->
-  <div id="screen-processing" class="screen">
-    <div class="processing-content">
-      <div class="processing-spinner"></div>
-      <h2>Processing Payment...</h2>
-      <p>Please confirm on your phone</p>
-    </div>
-  </div>
-
-  <!-- RECEIPT -->
-  <div id="screen-receipt" class="screen">
-    <div class="receipt-header">
-      <div class="success-icon"><svg width36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <h2>Payment Successful!</h2>
-      <p id="receipt-subtitle">Paid via MTN MoMo · Just now</p>
-    </div>
-    <div class="receipt-body">
-      <div class="receipt-card">
-        <div class="receipt-card-title">Items Purchased</div>
-        <div id="receipt-items-list"></div>
-        <hr class="divider"/>
-        <div style="displa:flex;justify-content:space-between;align-items:center;">
-          <span style="font-family:'Syne',sans-serif;font-weight:700;">Total Paid</span>
-          <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--green);" id="receipt-total"></span>
+        <!-- Buying Speed -->
+        <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+            <h3 class="font-bold mb-3">⚡ Live Shopping Activity</h3>
+            <div>
+                <div class="flex justify-between text-sm mb-1">
+                    <span>Active Shoppers</span>
+                    <span id="txn-per-hour" class="font-bold">0</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="speed-bar" class="bg-green-500 h-2 rounded-full transition-all" style="width: 0%"></div>
+                </div>
+                <p id="speed-status" class="text-xs text-gray-500 mt-1">Loading live data...</p>
+            </div>
         </div>
-      </div>
-      <div class="receipt-card">
-        <div class="receipt-card-title">Exit QR Code</div>
-        <div class="qr-container">
-          <div class="qr-box"><div class="qr-pattern" id="qr-pattern"></div></div>
-          <div class="qr-label">Show this to the security guard at exit</div>
-          <div class="qr-id" id="receipt-id">TXN-XXXXXXXX</div>
+
+        <!-- Live Sessions -->
+        <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+            <h3 class="font-bold mb-3">🛒 Live Shopper Sessions</h3>
+            <div id="today-transactions-list" class="max-h-64 overflow-y-auto space-y-2">
+                <p class="text-gray-400 text-center py-4">Loading...</p>
+            </div>
         </div>
-      </div>
-      <button class="done-btn" onclick="doneAndReset()">Done — Back to Home</button>
-    </div>
-  </div>
 
-  <!-- ============ ADMIN ============ -->
-  <div id="screen-admin" class="screen">
-    <div class="admin-topbar">
-      <div class="admin-logo">
-        <div class="admin-logo-dot"></div>
-        <span>SCAN<em>&</em>GOO</span>
-      <span style="font-size:11px;color:#2D4A30;font-weight:500;margin-left:4px;">Admin</span>
-      </div>
-      <button class="admin-logout" onclick="showScreen('auth')">Logout</button>
-    </div>
+        <!-- Completed Today -->
+        <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+            <h3 class="font-bold mb-3">✅ Completed Today</h3>
+            <div id="completed-sessions-list" class="max-h-64 overflow-y-auto space-y-2">
+                <p class="text-gray-400 text-center py-4">No completed sessions yet</p>
+            </div>
+        </div>
 
-    <!-- KPIs -->
-    <div class="admin-kpi-row">
-      <div class="kpi-card">
-        <div class="kpi-val green" id="kpi-active">0</div>
-        <div class="kpi-label">Active</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-val" id="kpi-total-items">0</div>
-        <div class="kpi-label">Items In Carts</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-val green" id="kpi-total-revenue">0</div>
-        <div class="kpi-label">Live Value (RWF)</div>
-      </div>
+        <!-- Alerts -->
+        <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+            <h3 class="font-bold mb-3">⚠️ Alerts <span id="admin-alert-count" class="bg-red-100 text-red-500 text-xs px-2 py-0.5 rounded-full ml-1">0</span></h3>
+            <div id="admin-alerts-list" class="space-y-2">
+                <p class="text-gray-400 text-center py-2">No alerts</p>
+            </div>
+        </div>
+
+        <!-- Inventory -->
+        <div class="bg-white rounded-xl p-4 shadow-sm pb-20">
+            <h3 class="font-bold mb-3">📊 Items Being Purchased</h3>
+            <div id="admin-inventory-list" class="space-y-2"></div>
+        </div>
     </div>
 
-    <!-- LIVE SESSIONS -->
-    <div class="admin-section-header">
-      <h3>🛒 Live Shopper Sessions <span class="live-badge">LIVE</span></h3>
-      <button onclick="addSimSession()" style="background:rgba(0,197,102,0.12);color:var(--green);border:none;border-radius:8px;padding:6px 12px;font-size:12pxont-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">+ Simulate Shopper</button>
-    </div>
-    <div class="sessions-list" id="admin-sessions-list">
-      <div class="empty-state" id="sessions-empty">No active shoppers right now</div>
-    </div>
-
-    <!-- INVENTORY SOLD -->
-    <div class="admin-section-header">
-      <h3>📊 Items Being Purchased</h3>
-    </div>
-    <div class="inventory-table" id="admin-inventory"></div>
-
-    <!-- ALERTS -->
-    <div class="admin-section-header">
-      <h3>âerts <span class="red-badge" id="alert-count">0</span></h3>
-    </div>
-    <div class="alerts-list" id="admin-alerts-list">
-      <div style="padding:0 0 8px;color:#2D4A30;font-size:13px;text-align:center;" id="alerts-empty">No alerts</div>
+    <!-- STORE SELECTION (Shopper) -->
+    <div id="screen-stores" class="screen p-6">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-[#005a64]">SCAN&GOO</h2>
+                <p class="text-sm text-gray-500 mt-1">Smart Shopping Experience</p>
+            </div>
+            <div class="w-10 h-10 bg-gradient-to-br from-[#005a64] to-[#00C566] rounded-full flex items-center justify-center text-white font-bold shadow-md" id="user-avatar">👤</div>
+        </div>
+        
+        <div class="relative mb-6">
+            <input type="text" id="store-search" placeholder="Search for a supermarket..." class="w-full p-4 bg-gray-100 rounded-2xl pl-12" oninput="filterStores()">
+            <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-xl">🔍</span>
+        </div>
+        
+        <h3 class="font-bold text-lg mb-4">Available Supermarkets</h3>
+        <div id="supermarkets-list" class="space-y-3 mb-8"></div>
     </div>
 
-    <!-- COMPLETED -->
-    <div class="admin-section-header">
-      <h3>✅ Completed Today</h3>
-      <span style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--green);" id="completed-total-rev">0 RWF</span>
-    </div>
-    <div cls="completed-list" id="admin-completed-list">
-      <div class="empty-state" id="completed-empty">No completed sessions yet</div>
-    </div>
-  </div>
+    <!-- SCANNER -->
+    <div id="screen-scan" class="screen bg-black">
+        <div class="p-4 bg-white flex justify-between items-center shadow-md">
+            <button onclick="navTo('screen-stores')" class="text-gray-600 text-2xl">←</button>
+            <span class="font-bold text-xl text-[#005a64]">SCAN&GOO</span>
+            <span class="bg-green-100 px-3 py-1 rounded-full text-sm font-bold text-[#00C566]">RWF <span id="cart-total">0</span></span>
+        </div>
+        
+        <div class="scanner-viewport mt-8 mx-6 relative">
+            <div class="scanner-line"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center text-white">
+                    <div class="text-6xl mb-3 animate-pulse">📷</div>
+                    <p class="text-sm font-semibold">Position barcode within the frame</p>
+                    <p class="text-xs text-gray-400 mt-2">Tap products below to simulate scanning</p>
+                </div>
+            </div>
+        </div>
 
+        <div class="mx-6 mt-8">
+            <h3 class="text-white text-sm font-semibold mb-3">⭐ Quick Add Products</h3>
+            <div class="grid grid-cols-2 gap-3" id="demo-products"></div>
+        </div>
 
-  <!-- ============ SUPER ADMIN ============ -->
-  <div id="screen-superadmin" class="screen" style="background:#08080F;overflow-y:auto;">
-    <div class="admin-topbar" style="background:#08080F;border-bottom:1px solid #1A1A2E;">
-      <div class="admin-logo">
-        <div class="admin-logo-dot" style="background:var(--purple);box-shadow:0 0 8px var(--purple);"></div>
-        <span style="color:var(--white);">SCAN<em style="color:var(--purple);">&</em>GOO</span>
-        <span style="font-size:11px;color:#3A3A5C;font-weight:500;margin-left:4px;">Super Admin</span>
-      </div>
-      <button class="admin-logout" onclick="doSuperAdminLogout()">Logout</button>
-    </div>
-
-    <!-- KPIs -->
-    <div class="admin-kpi-row" style="padding:16px;">
-      <div class="kpi-card" style="background:#0F0F1A;border-color:#1A1A2E;">
-        <div class="kpi-val" id="sa-kpi-total" style="color:var(--purple);">0</div>
-        <div class="kpi-label">Total Stores</div>
-      </div>
-      <div class="kpi-card" style="background:#0F0F1A;border-color:#1A1A2E;">
-        <div class="kpi-val green" id="sa-kpi-active">0</div>
-        <div class="kpi-label">Active</div>
-      </div>
-      <div class="kpi-card" style="background:#0F0F1A;border-color:#1A1A2E;">
-        <div class="kpi-val red" id="sa-kpi-suspended">0</div>
-        <div class="kpi-label">Suspended</div>
-      </div>
+        <div class="absolute bottom-0 w-full bg-white p-5 flex justify-around rounded-t-3xl shadow-lg">
+            <button onclick="navTo('screen-scan')" class="text-[#005a64] flex flex-col items-center gap-1">
+                <span class="text-2xl">🔍</span>
+                <span class="text-xs font-semibold">SCAN</span>
+            </button>
+            <button onclick="navTo('screen-cart')" class="text-gray-400 flex flex-col items-center gap-1">
+                <span class="text-2xl">🛒</span>
+                <span class="text-xs">CART</span>
+            </button>
+        </div>
     </div>
 
-    <!-- ADD SUPERMARKET -->
-    <div class="admin-section-header">
-      <h3 style="color:var(--white);">🏪 Supermarkets</h3>
-      <button onclick="showAddSupermarket()" style="background:rgba(123,94,167,0.2);color:var(--purple);border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;">+ Add Store</button>
+    <!-- CART -->
+    <div id="screen-cart" class="screen p-6">
+        <div class="flex items-center mb-6">
+            <button onclick="navTo('screen-scan')" class="text-gray-600 mr-4 text-2xl">←</button>
+            <h2 class="text-2xl font-bold flex-1">My Cart</h2>
+            <button onclick="clearCart()" class="text-red-500 text-sm font-semibold">Clear All</button>
+        </div>
+        
+        <div id="cart-items-list" class="cart-items-scroll space-y-3 mb-6">
+            <div class="text-center text-gray-400 py-12">
+                <div class="text-6xl mb-4">🛒</div>
+                <p class="text-lg font-medium">Your cart is empty</p>
+                <button onclick="startShopping()" class="mt-6 text-[#00C566] font-semibold underline">Start Shopping →</button>
+            </div>
+        </div>
+
+        <div id="cart-summary" style="display:none;">
+            <div class="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-5 mb-5">
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <p class="text-gray-600">Subtotal</p>
+                        <p class="font-bold" id="cart-subtotal">0 RWF</p>
+                    </div>
+                    <div class="flex justify-between">
+                        <p class="text-gray-600">Total Weight</p>
+                        <p class="text-gray-700" id="cart-weight">0 kg</p>
+                    </div>
+                    <div class="flex justify-between pt-2 border-t">
+                        <p class="text-xl font-bold">Total</p>
+                        <p class="text-2xl font-bold text-[#00C566]" id="cart-grand-total">0 RWF</p>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <button onclick="continueShopping()" class="w-full py-4 rounded-xl font-semibold bg-gray-100 text-[#005a64] border-2 border-gray-200">🛍️ Continue Shopping</button>
+                <button onclick="proceedToCheckout()" class="w-full py-4 rounded-xl font-semibold bg-[#00C566] text-white">✅ Proceed to Checkout</button>
+            </div>
+        </div>
     </div>
 
-    <!-- ADD FORM (hidden by default) -->
-    <div id="sa-add-form" style="display:none;background:#0F0F1A;border:1px solid #1A1A2E;border-radius:16px;dding:16px;margin:0 16px 16px;">
-      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:12px;">New Supermarket</div>
-      <input id="sa-name" placeholder="Store Name *" style="width:100%;padding:10px 14px;border:1px solid #1A1A2E;border-radius:10px;background:#08080F;color:var(--white);font-size:14px;margin-bottom:8px;outline:none;"/>
-      <input id="sa-email" placeholder="Contact Email *" type="email" style="width:100%;padding:10px 14px;border:1px solid #1A1A2E;border-radius:10px;background:#08080F;color:var(--white);font-size:14px;margin-bottom:8px;outline:none;"/>
-      <input id="sa-phone" placeholder="Phone" style="width:100%;padding:10px 14px;border:1px solid #1A1A2E;border-radius:10px;background:#08080F;color:var(--white);font-size:14px;margin-bottom:8px;outline:none;"/>
-      <input id="sa-city" placeholder="City" style="width:100%;padding:10px 14px;border:1px solid #1A1A2E;border-radius:10px;background:#08080F;color:var(--white);font-size:14px;margin-bottom:12px;outline:none;"/>
-      <div style="display:flex;gap:8px;">
-        <button onclick="submitAddSupermarket()" style="flex:1;padding:12px;background:var(--purple);color:var(--white);border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Add Store</button>
-        <button onclick="document.getElementById('sa-add-form').style.display='none'" style="padding:12px 16px;background:rgba(255,255,255,0.05);color:#8FA696;border:none;border-radius:10px;cursor:pointer;">Cancel</button>
-      </div>
-      <div id="sa-form-msg" style="display:none;margin-top:10px;font-size:13px;text-align:center;"></div>
+    <!-- CHECKOUT -->
+    <div id="screen-checkout" class="screen p-6">
+        <div class="flex items-center mb-6">
+            <button onclick="navTo('screen-cart')" class="text-gray-600 mr-4 text-2xl">←</button>
+            <h2 class="text-2xl font-bold">Checkout</h2>
+        </div>
+        <div class="bg-gray-50 rounded-2xl p-5 mb-6">
+            <h3 class="font-bold mb-3">Order Summary</h3>
+            <div id="checkout-items"></div>
+            <div class="border-t pt-3 mt-3">
+                <div class="flex justify-between font-bold">
+                    <span>Total</span>
+                    <span class="text-[#00C566]" id="checkout-total">0 RWF</span>
+                </div>
+            </div>
+        </div>
+        <h3 class="font-bold mb-3">Payment Method</h3>
+        <div class="space-y-3 mb-6">
+            <div class="payment-option border-2 border-[#00C566] p-4 rounded-xl flex items-center justify-between cursor-pointer bg-green-50" onclick="selectPayment('momo', this)">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center">📱</div>
+                    <div><p class="font-bold">MTN Mobile Money</p></div>
+                </div>
+                <div class="w-6 h-6 rounded-full bg-[#00C566]"></div>
+            </div>
+            <div class="payment-option border p-4 rounded-xl flex items-center justify-between cursor-pointer" onclick="selectPayment('airtel', this)">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center">📲</div>
+                    <div><p class="font-bold">Airtel Money</p></div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 border-gray-300"></div>
+            </div>
+            <div class="payment-option border p-4 rounded-xl flex items-center justify-between cursor-pointer" onclick="selectPayment('cash', this)">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">💵</div>
+                    <div><p class="font-bold">Cash at Counter</p></div>
+                </div>
+                <div class="w-6 h-6 rounded-full border-2 border-gray-300"></div>
+            </div>
+        </div>
+        <input type="tel" id="payment-phone" placeholder="Phone number" class="w-full p-4 border rounded-xl mb-4 bg-gray-50">
+        <button onclick="processPayment()" class="btn-green py-4">Pay Now →</button>
     </div>
 
-    <!-- SUPERMARKETS LIST -->
-    <div id="sa-stores-list" style="padding:0 16px 40px;display:flex;flex-direction:column;gap:10px;">
-      <div style="text-align:center;padding:30px;color:#3A3A5C;font-size:14px;">Loading stores...</div>
+    <!-- SUCCESS -->
+    <div id="screen-success" class="screen p-8 text-center bg-white">
+        <div class="w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center text-5xl mx-auto mt-12 mb-6">✓</div>
+        <h2 class="text-2xl font-bold mb-2">Payment Successful!</h2>
+        <div class="bg-gray-900 p-6 rounded-3xl inline-block mb-6">
+            <div class="bg-white p-4 rounded-2xl">
+                <div class="w-48 h-48 bg-gray-800 rounded-xl flex items-center justify-center">
+                    <div class="text-center">
+                        <div class="text-4xl mb-2">📱</div>
+                        <div class="text-white bg-green-600 px-2 py-1 rounded-full text-xs">EXIT CODE</div>
+                        <div class="text-white font-bold text-sm mt-2" id="receipt-code">SG-XXXX</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button onclick="resetAndGoHome()" class="text-[#005a64] font-bold">← Back to Home</button>
     </div>
-  </div>
-
-</div><!-- #app -->
 
 <script>
 // ============================================================
@@ -737,42 +393,34 @@ const API_BASE = 'https://scan-goo-api.onrender.com';
 // ============================================================
 // STATE
 // ============================================================
-let currentUser    = null;
-let authToken      = null;
-let currentSession = null;
-let cart           = [];
-let selectedPayment = 'momo';
-let currentTxnId   = '';
-let PRODUCTS       = [];
+let currentUser = null, authToken = null, currentSession = null;
+let cart = [], selectedPayment = 'momo', userRole = null;
+let currentSupermarket = null, allStores = [], PRODUCTS = [];
+let adminPollInterval = null;
+let isRegistering = false;
 
-// ── Auth persistence ────────────────────────────────────────
+// ── Auth persistence ──────────────────────────────────────
 function restoreAuth() {
-  const t = localStorage.getItem('scangoo_token');
-  const u = localStorage.getItem('scangoo_user');
+  const t = localStorage.getItem('sg_token');
+  const u = localStorage.getItem('sg_user');
   if (t && u) { authToken = t; currentUser = JSON.parse(u); return true; }
   return false;
 }
 function saveAuth(token, user) {
   authToken = token; currentUser = user;
-  localStorage.setItem('scangoo_token', token);
-  localStorage.setItem('scangoo_user', JSON.stringify(user));
+  localStorage.setItem('sg_token', token);
+  localStorage.setItem('sg_user', JSON.stringify(user));
 }
-functioclearAuth() {
-  authToken = null; currentUser = null; currentSession = null; cart = [];
-  localStorage.removeItem('scangoo_token');
-  localStorage.removeItem('scangoo_user');
+function clearAuthData() {
+  authToken = null; currentUser = null; currentSession = null; cart = []; userRole = null;
+  localStorage.removeItem('sg_token'); localStorage.removeItem('sg_user');
 }
 
-// ============================================================
-// API HELPER
-// ============================================================
+// ── API helper ────────────────────────────────────────────
 async function api(method, path, body) {
   const opts = {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-    },
+    headers: { 'Content-Type': 'application/json', ...(authToken ? { Authorization: 'Bearer ' + authToken } : {}) }
   };
   if (body) opts.body = JSON.stringify(body);
   const res = await fetch(API_BASE + path, opts);
@@ -784,159 +432,377 @@ async function api(method, path, body) {
 // ============================================================
 // INIT
 // ============================================================
-window.onload = async function () {
-  setTimeout(async () => {
-    if (restoreAuth()) {
-      if (currentUser.role === 'superadmin') {
-        await renderSuperAdminFull();
-        showScreen('superadmin');
-      } else if (currentUser.role === 'admin') {
-        await loadProducts();
-        renderAdminFull();
-        showScreen('admin');
-      } else {
-        await loadProducts();
-        await ensureSession();
-        populateHomeScreen();
-        showScreen('home');
-      }
-    } else {
-      showScreen('auth');
-    }
-  }, 2500);
-};
+window.addEventListener('DOMContentLoaded', () => {
+  addFloatingCartButton();
+  setupTabs();
+  if (restoreAuth()) {
+    routeByRole(currentUser.role);
+  }
+});
 
-// ============================================================
-// NAVIGATION
-// ============================================================
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + name).classList.add('active');
-  if (name === 'cart')  renderCart();
-  if (name === 'admin') { renderAdminFull(); startAdminPolling(); }
-  if (name !== 'admin') stopAdminPolling();
-}
-function gotoScanner()  { showScreen('scanner'); }
-function gotoCheckout() { if (!cart.length) return; renderCheckout(); showScreen('checkout'); }
-
-// ============================================================
-// AUTH
-// ============================================================
-function switchAuthTab(tab, el) {
-  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('auth-login').style.display    = tab === 'login'    ? 'block' : 'none';
-  document.getElementById('auth-register').style.display = tab === 'register' ? 'block' : 'none';
-  hideAuthError();
-}
-function showAuthError(msg) {
-  const el = document.getElementById('auth-error');
-  if (el) { el.textContent = msg; el.style.display = 'block'; }
-}
-function hideAuthError() {
-  const el = document.getElementById('auth-error');
-  if (el) el.style.display = 'none';
-}
-
-async function doLogin() {
-  hideAuthError();
-  const email    = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-pass').value;
-  if (!email || !password) return showAuthError('Please enter your email and password.');
-  const btn = document.getElementById('login-btn');
-  btn.textContent = 'Signing in…'; btn.disabled = true;
+async function routeByRole(role) {
   try {
-    const data = await api('POST', '/api/auth/login', { email, password });
-    saveAuth(data.token, data.user);
-    if (data.user.role === 'superadmin') {
-      await renderSuperAdminFull();
-      showScreen('superadmin');
-    } else if (data.user.role === 'admin') {
+    if (role === 'superadmin') {
+      await renderPlatformDashboard();
+      navTo('screen-platform-dashboard');
+    } else if (role === 'admin') {
       await loadProducts();
-      renderAdminFull();
-      showScreen('admin');
+      await r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8();
+      navTo('screen-supermarket-dashboard');
     } else {
-      await loadPructs();
+      await loadProducts();
       await ensureSession();
-      populateHomeScreen();
-      showScreen('home');
+      await loadStores();
+      updateUserAvatar();
+      const saved = localStorage.getItem('sg_store');
+      if (saved) { currentSupermarket = JSON.parse(saved); }
+      renderSupermarketsList();
+      navTo('screen-stores');
     }
-  } catch (e) {
-    showAuthError(e.message);
-  } finally {
-    btn.textContent = 'Sign In as Shopper'; btn.disabled = false;
-  }
+  } catch(e) { clearAuthData(); navTo('screen-login'); }
 }
 
-async function doAdminLogin() {
-  hideAuthError();
-  const email    = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-pass').value;
-  if (!email || !password) return showAuthError('Please enter your email and password.');
-  const btn = document.getElementById('admin-btn');
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function setupTabs() {
+  const tabs = [
+    { btn: 'shopper-tab', panel: 'shopper-login' },
+    { btn: 'admin-tab',   panel: 'admin-login'   },
+    { btn: 'platform-tab',panel: 'platform-login' }
+  ];
+  tabs.forEach(({ btn, panel }) => {
+    const el = document.getElementById(btn);
+    if (!el) return;
+    el.addEventListener('click', () => {
+      tabs.forEach(t => {
+        document.getElementById(t.btn).classList.remove('bg-[#005a64]', 'text-white');
+        document.getElementById(t.btn).classList.add('bg-gray-100');
+        document.getElementById(t.panel).style.display = 'none';
+      });
+      el.classList.add('bg-[#005a64]', 'text-white');
+      el.classList.remove('bg-gray-100');
+      document.getElementById(panel).style.display = 'block';
+    });
+  });
+}
+
+// ============================================================
+// REGISTER TOGGLE
+// ============================================================
+function toggleRegister() {
+  isRegistering = !isRegistering;
+  document.getElementById('shopper-register').style.display = isRegistering ? 'block' : 'none';
+  document.getElementById('toggle-reg-btn').textContent = isRegistering
+    ? 'Already have an account? Login →'
+    : "Don't have an account? Register →";
+  document.getElementById('shopper-login-btn').textContent = isRegistering ? 'Create Account' : 'Sign In as Shopper';
+  document.getElementById('shopper-login-btn').onclick = isRegistering ? handleShopperRegister : handleShopperLogin;
+}
+
+// ============================================================
+// AUTH HANDLERS
+// ============================================================
+async function handleShopperLogin() {
+  const errEl = document.getElementById('shopper-error');
+  errEl.style.display = 'none';
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) { errEl.textContent = 'Please enter email and password.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('shopper-login-btn');
   btn.textContent = 'Signing in…'; btn.disabled = true;
   try {
     const data = await api('POST', '/api/auth/login', { email, password });
-    if (!['admin','superadmin'].includes(data.user.role)) {
-      throw new Error('This account does not have admin access.');
-    }
     saveAuth(data.token, data.user);
-    if (data.user.role === 'superadmin') {
-      await renderSuperAdminFull();
-      showScreen('superadmin');
-    } else {
-      await loadProducts();
-    renderAdminFull();
-      showScreen('admin');
-    }
-  } catch (e) {
-    showAuthError(e.message);
-  } finally {
-    btn.textContent = 'Sign In as Admin →'; btn.disabled = false;
-  }
+    userRole = data.user.role;
+    await routeByRole(data.user.role);
+  } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+  finally { btn.textContent = 'Sign In as Shopper'; btn.disabled = false; }
 }
 
-async function doRegister() {
-  const errEl  = document.getElementById('reg-error');
-  const succEl = document.getElementById('reg-success');
+async function handleShopperRegister() {
+  const errEl = document.getElementById('shopper-error');
   errEl.style.display = 'none';
-  succEl.style.display = 'none';
-
-  const name     = document.getElementById('reg-name').value.trim();
-  const email    = document.getElementById('r-email').value.trim();
-  const phone    = document.getElementById('reg-phone').value.trim();
-  const password = document.getElementById('reg-pass').value;
-
-  if (!name || !email || !password) {
-    errEl.textContent = 'Name, email and password are required.';
-    errEl.style.display = 'block';
-    return;
-  }
-
-  const btn = document.getElementById('reg-btn');
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('login-email').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!name || !email || !password) { errEl.textContent = 'Name, email and password are required.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('shopper-login-btn');
   btn.textContent = 'Creating…'; btn.disabled = true;
-
   try {
     await api('POST', '/api/auth/register', { name, email, phone, password });
-    //lear form
-    document.getElementById('reg-name').value  = '';
-    document.getElementById('reg-email').value = '';
-    document.getElementById('reg-phone').value = '';
-    document.getElementById('reg-pass').value  = '';
-    // Show success message
-    succEl.textContent = '✅ Account created successfully! Please log in.';
-    succEl.style.display = 'block';
-    // Switch to login tab after 1.5s
-    setTimeout(() => {
-      switchAuthTab('login', document.querySelectorAll('.auth-tab')[0]);
-      // Pre-fi email
-      document.getElementById('login-email').value = email;
-    }, 1500);
-  } catch (e) {
-    errEl.textContent = e.message;
-    errEl.style.display = 'block';
-  } finally {
-    btn.textContent = 'Create Account'; btn.disabled = false;
+    showToast('✅ Account created! Please log in.');
+    toggleRegister();
+    document.getElementById('login-email').value = email;
+    document.getElementById('login-password').value = '';
+  } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+  finally { btn.textContent = 'Create Account'; btn.disabled = false; }
+}
+
+async function handleSupermarketAdminLogin() {
+  const errEl = document.getElementById('admin-error');
+  errEl.style.display = 'none';
+  const email = document.getElementById('admin-email').value.trim();
+  const password = document.getElementById('admin-password').value;
+  if (!email || !password) { errEl.textContent = 'Please enter email and password.'; errEl.style.display = 'block'; return; }
+  try {
+    const data = await api('POST', '/api/auth/login', { email, password });
+    if (!['admin','superadmin'].includes(data.user.role)) throw new Error('This account does not have admin access.');
+    saveAuth(data.token, data.user);
+    userRole = data.user.role;
+    await loadProducts();
+    await r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8();
+    startAdminPolling();
+    navTo('screen-supermarket-dashboard');
+    showToast('Welcome Admin!');
+  } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+}
+
+async function handlePlatformLogin() {
+  const errEl = document.getElementById('platform-error');
+  errEl.style.display = 'none';
+  const email = document.getElementById('platform-email').value.trim();
+  const password = document.getElementById('platform-master-password').value;
+  if (!email || !password) { errEl.textContent = 'Please enter email and password.'; errEl.style.display = 'block'; return; }
+  try {
+    const data = await api('POST', '/api/auth/login', { email, password });
+    if (data.user.role !== 'superadmin') throw new Error('This account does not have platform owner access.');
+    saveAuth(data.token, data.user);
+    userRole = 'superadmin';
+    await renderPlatformDashboard();
+    navTo('screen-platform-dashboard');
+    showToast('Welcome Platform Owner!');
+  } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+}
+
+function logout() {
+  stopAdminPolling();
+  clearAuthData();
+  cart = [];
+  updateCartUI();
+  updateFloatingCartCount();
+  showToast('Logged out');
+  navTo('screen-login');
+}
+
+// ============================================================
+// PLATFORM OWNER DASHBOARD
+// ============================================================
+async function renderPlatformDashboard() {
+  try {
+    const [storesRes, statsRes, kpiRes] = await Promise.all([
+      api('GET', '/api/supermarkets'),
+      api('GET', '/api/supermarkets/stats'),
+      api('GET', '/api/sessions/admin/kpis').catch(() => ({ kpis: {} }))
+    ]);
+    const stores = storesRes.supermarkets || [];
+    const stats = statsRes.stats || {};
+    const kpis = kpiRes.kpis || {};
+
+    document.getElementById('total-supermarkets').textContent = stats.total || stores.length;
+    document.getElementById('total-transactions').textContent = kpis.completedToday || 0;
+    document.getElementById('total-revenue').textContent = (kpis.todayRevenue || 0).toLocaleString() + ' RWF';
+    document.getElementById('active-supermarkets').textContent = stats.active || 0;
+
+    const container = document.getElementById('platform-supermarkets-list');
+    if (!stores.length) {
+      container.innerHTML = '<p class="text-gray-400 text-center py-4">No supermarkets yet</p>';
+      return;
+    }
+    container.innerHTML = stores.map(sup => `
+      <div class="supermarket-card">
+        <div class="flex justify-between items-start mb-3">
+          <div class="flex-1">
+            <p class="font-bold text-gray-800 text-lg">${sup.name}</p>
+            <p class="text-xs text-gray-500">${sup.city || sup.address || ''}</p>
+            <p class="text-xs text-gray-400">${sup.email}${sup.phone ? ' | ' + sup.phone : ''}</p>
+          </div>
+          <div class="flex gap-2 items-center">
+            <span class="text-xs font-bold px-2 py-1 rounded-full ${sup.status === 'active' ? 'bg-green-100 text-green-600' : sup.status === 'suspended' ? 'bg-red-100 text-red-500' : 'bg-yellow-100 text-yellow-600'}">${sup.status}</span>
+            ${sup.status === 'active'
+              ? `<button onclick="setSupermarketStatus('${sup._id}','suspended')" class="text-red-500 text-xs px-2 py-1 hover:bg-red-50 rounded">⏸ Suspend</button>`
+              : `<button onclick="setSupermarketStatus('${sup._id}','active')" class="text-green-500 text-xs px-2 py-1 hover:bg-green-50 rounded">▶ Activate</button>`
+            }
+            <button onclick="deleteSupermarket('${sup._id}')" class="text-red-500 text-xs px-2 py-1 hover:bg-red-50 rounded">🗑️</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-3 border-t">
+          <div><p class="text-xs text-gray-500">Registered</p><p class="font-bold text-xs">${new Date(sup.createdAt).toLocaleDateString()}</p></div>
+          <div><p class="text-xs text-gray-500">Plan</p><p class="font-bold text-xs capitalize">${sup.plan || 'free'}</p></div>
+        </div>
+      </div>`).join('');
+  } catch(e) { showToast('Error loading dashboard: ' + e.message); }
+}
+
+async function addSupermarket() {
+  const errEl = document.getElementById('platform-add-error');
+  errEl.style.display = 'none';
+  const name = document.getElementById('new-sup-name').value.trim();
+  const city = document.getElementById('new-sup-location').value.trim();
+  const email = document.getElementById('new-sup-email').value.trim();
+  const phone = document.getElementById('new-sup-phone').value.trim();
+  if (!name || !email) { errEl.textContent = 'Name and email are required.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('add-sup-btn');
+  btn.textContent = 'Adding…'; btn.disabled = true;
+  try {
+    await api('POST', '/api/supermarkets', { name, email, phone, city });
+    ['new-sup-name','new-sup-location','new-sup-email','new-sup-phone'].forEach(id => document.getElementById(id).value = '');
+    showToast(name + ' added successfully!');
+    await renderPlatformDashboard();
+  } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+  finally { btn.textContent = 'Register Supermarket →'; btn.disabled = false; }
+}
+
+async function setSupermarketStatus(id, status) {
+  try { await api('PATCH', '/api/supermarkets/' + id + '/status', { status }); await renderPlatformDashboard(); showToast('Status updated'); }
+  catch(e) { showToast('Failed: ' + e.message); }
+}
+
+async function deleteSupermarket(id) {
+  if (!confirm('Delete this supermarket? This cannot be undone.')) return;
+  try { await api('DELETE', '/api/supermarkets/' + id); await renderPlatformDashboard(); showToast('Deleted successfully'); }
+  catch(e) { showToast('Failed: ' + e.message); }
+}
+
+// ============================================================
+// SUPERMARKET ADMIN DASHBOARD
+// ============================================================
+function startAdminPolling() { stopAdminPolling(); adminPollInterval = setInterval(r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8, 4000); }
+function stopAdminPolling() { if (adminPollInterval) { clearInterval(adminPollInterval); adminPollInterval = null; } }
+
+async function r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8() {
+  try {
+    const [kpiRes, liveRes, completedRes, alertsRes, invRes] = await Promise.all([
+      api('GET', '/api/sessions/admin/kpis'),
+      api('GET', '/api/sessions/admin/live'),
+      api('GET', '/api/sessions/admin/completed'),
+      api('GET', '/api/alerts'),
+      api('GET', '/api/sessions/admin/inventory')
+    ]);
+    const kpis = kpiRes.kpis || {};
+    const liveSessions = liveRes.sessions || [];
+    const completedSessions = completedRes.sessions || [];
+    const alerts = alertsRes.alerts || [];
+    const inventory = invRes.inventory || [];
+
+    // KPIs
+    document.getElementById('daily-revenue').textContent = (kpis.todayRevenue || 0).toLocaleString() + ' RWF';
+    document.getElementById('daily-transactions').textContent = kpis.completedToday || 0;
+    document.getElementById('daily-items').textContent = kpis.totalItemsInCarts || 0;
+    document.getElementById('avg-transaction').textContent = (kpis.liveValue || 0).toLocaleString() + ' RWF';
+
+    // Speed bar
+    const active = kpis.activeShoppers || 0;
+    document.getElementById('txn-per-hour').textContent = active;
+    document.getElementById('speed-bar').style.width = Math.min(100, active * 10) + '%';
+    document.getElementById('speed-status').textContent = active >= 10 ? '🚀 Very busy!' : active >= 5 ? '⚡ Good activity' : active > 0 ? '📊 Moderate traffic' : '⏰ No active shoppers';
+
+    // Live sessions
+    const liveList = document.getElementById('today-transactions-list');
+    liveList.innerHTML = !liveSessions.length
+      ? '<p class="text-gray-400 text-center py-4">No active shoppers</p>'
+      : liveSessions.map(s => `
+          <div class="transaction-item">
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="font-semibold">${s.shopperName}</p>
+                <p class="text-xs text-gray-500">${s.totalItems || 0} items · ${s.status}</p>
+              </div>
+              <div class="text-right">
+                <p class="font-bold text-green-600">${(s.totalPrice || 0).toLocaleString()} RWF</p>
+                <p class="text-xs text-gray-400">${(s.totalWeight || 0).toFixed(1)} kg</p>
+              </div>
+            </div>
+          </div>`).join('');
+
+    // Completed
+    const compList = document.getElementById('completed-sessions-list');
+    compList.innerHTML = !completedSessions.length
+      ? '<p class="text-gray-400 text-center py-4">No completed sessions yet</p>'
+      : completedSessions.map(c => `
+          <div class="transaction-item">
+            <div class="flex justify-between">
+              <div><p class="font-semibold">${c.shopperName}</p><p class="text-xs text-gray-500">${c.payment?.methodLabel || '—'} · ${c.payment?.txnId || '—'}</p></div>
+              <p class="font-bold text-green-600">${(c.payment?.total || 0).toLocaleString()} RWF</p>
+            </div>
+          </div>`).join('');
+
+    // Alerts
+    document.getElementById('admin-alert-count').textContent = alerts.length;
+    const alertsList = document.getElementById('admin-alerts-list');
+    alertsList.innerHTML = !alerts.length
+      ? '<p class="text-gray-400 text-center py-2">No alerts</p>'
+      : alerts.map(a => `
+          <div class="flex gap-3 p-3 bg-red-50 rounded-xl">
+            <span class="text-xl">${a.icon}</span>
+            <div class="flex-1"><p class="font-semibold text-sm">${a.title}</p><p class="text-xs text-gray-500">${a.detail}</p></div>
+            <span class="text-xs text-gray-400">${a.time}</span>
+          </div>`).join('');
+
+    // Inventory
+    const invList = document.getElementById('admin-inventory-list');
+    invList.innerHTML = !inventory.length
+      ? '<p class="text-gray-400 text-center py-4">No items scanned yet</p>'
+      : inventory.map(item => `
+          <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+            <span class="text-2xl">${item.product.emoji}</span>
+            <div class="flex-1">
+              <p class="font-semibold text-sm">${item.product.name}</p>
+              <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                <div class="bg-green-500 h-1.5 rounded-full" style="width:${inventory[0] ? Math.round(item.qty/inventory[0].qty*100) : 0}%"></div>
+              </div>
+            </div>
+            <div class="text-right"><p class="font-bold">${item.qty}</p><p class="text-xs text-gray-500">units</p></div>
+            <div class="text-right"><p class="font-bold text-green-600 text-sm">${item.revenue >= 1000 ? (item.revenue/1000).toFixed(1)+'k' : item.revenue} RWF</p></div>
+          </div>`).join('');
+  } catch(e) { console.warn('Admin dashboard error:', e.message); }
+}
+
+// ============================================================
+// STORES
+// ============================================================
+async function loadStores() {
+  try {
+    const data = await api('GET', '/api/supermarkets');
+    allStores = (data.supermarkets || []).filter(s => s.status === 'active');
+  } catch(e) {
+    allStores = [{ _id: 'default', name: 'Inzovu Supermarket', city: 'Remera, Kigali', logo: '🏪', status: 'active' }];
+  }
+}
+
+function renderSupermarketsList(query) {
+  const filtered = query
+    ? allStores.filter(s => s.name.toLowerCase().includes(query.toLowerCase()) || (s.city||'').toLowerCase().includes(query.toLowerCase()))
+    : allStores;
+  const container = document.getElementById('supermarkets-list');
+  container.innerHTML = filtered.length
+    ? filtered.map(sup => `
+        <div class="supermarket-card" onclick="selectSupermarket('${sup._id}')">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gradient-to-br from-[#005a64] to-[#00C566] rounded-xl flex items-center justify-center text-2xl">${sup.logo || '🏪'}</div>
+            <div class="flex-1"><p class="font-bold">${sup.name}</p><p class="text-xs text-gray-500">📍 ${sup.city || 'Rwanda'}</p></div>
+            <div class="text-2xl text-gray-400">→</div>
+          </div>
+        </div>`).join('')
+    : '<p class="text-gray-400 text-center py-4">No stores found</p>';
+}
+
+function filterStores() {
+  renderSupermarketsList(document.getElementById('store-search').value);
+}
+
+function selectSupermarket(storeId) {
+  currentSupermarket = allStores.find(s => s._id === storeId) || allStores[0];
+  if (currentSupermarket) localStorage.setItem('sg_store', JSON.stringify(currentSupermarket));
+  showToast('Shopping at ' + (currentSupermarket?.name || 'store'));
+  startShopping();
+}
+
+function updateUserAvatar() {
+  const el = document.getElementById('user-avatar');
+  if (el && currentUser) {
+    el.textContent = currentUser.avatar || currentUser.name?.charAt(0)?.toUpperCase() || '👤';
   }
 }
 
@@ -945,508 +811,226 @@ async function doRegister() {
 // ============================================================
 async function loadProducts() {
   try {
-    const data = await api('GET', '/api/products');
-    PRODUCTS = data.products;
-    renderDemoProducts();
-  } catch (e) {
-    console.error('Could not load products:', e.message);
-  }
+    const d = await api('GET', '/api/products');
+    PRODUCTS = d.products || [];
+  } catch(e) { console.warn('Products failed:', e.message); }
+}
+
+function loadProductsUI() {
+  const container = document.getElementById('demo-products');
+  if (!container) return;
+  container.innerHTML = PRODUCTS.map(p => `
+    <button onclick="addToCart('${p.id}','${p.name}',${p.price},'${p.emoji}',${p.weight})"
+            class="bg-gray-800 p-4 rounded-xl text-left hover:bg-gray-700 transition">
+      <div class="text-3xl mb-2">${p.emoji}</div>
+      <div class="text-white text-sm font-semibold">${p.name}</div>
+      <div class="text-green-400 text-xs">${p.price.toLocaleString()} RWF</div>
+    </button>`).join('');
 }
 
 // ============================================================
 // SESSION
 // ============================================================
 async function ensureSession() {
-  try {
-    const data = await api('GET', '/api/sessions/mine');
-    currentSession = data.session;
-  } catch {
-    const data = await api('POST', '/api/sessions/start');
-    currentSession = data.session;
-  }
+  try { const d = await api('GET', '/api/sessions/mine'); currentSession = d.session; }
+  catch { const d = await api('POST', '/api/sessions/start'); currentSession = d.session; }
   syncCartFromSession();
 }
 
 function syncCartFromSession() {
   if (!currentSession) { cart = []; return; }
   cart = currentSession.items.map(i => ({
-    product: {
-      id: i.productSnapshot.id,
-      name: i.productSnapshot.name,
-      emoji: i.productSnapshot.emoji,
-      price: i.productSnapshot.price,
-      weight: i.productSnapshot.weight,
-      ageRestricted: i.productSnapshot.ageRestricted,
-    },
-    qty: i.qty,
+    id: i.productSnapshot.id,
+    name: i.productSnapshot.name,
+    price: i.productSnapshot.price,
+    emoji: i.productSnapshot.emoji,
+    weight: i.productSnapshot.weight || 0,
+    quantity: i.qty
   }));
+  updateFloatingCartCount();
 }
 
 // ============================================================
-// HOME SCREEN
+// SHOPPER FUNCTIONS
 // ============================================================
-function populateHomeScreen() {
-  if (!currentUser) return;
-  const parts = currentUser.name.split(' ');
-  const initials = currentUser.avatar || (parts[0][0] + (parts[1]?.[0]||'')).toUpperCase();
-  const hour = new Date().getHours();
-  const greet = hour < 12 ? 'Good morning,' : hour < 18 ? 'Good afternoon,' : 'Good evening,';
-  document.querySelector('.home-greeting').textContent = greet;
-  document.querySelector('.home-name').textContent = currentUser.name;
-  document.querySelector('.home-header .avatar').textContent = initials;
-  loadHomeHistory();
+function startShopping() {
+  loadProductsUI();
+  navTo('screen-scan');
 }
 
-async function loadHomeHistory() {
-  try {
-    const data = await api('GET', '/api/sessions/history');
-    const sessions = data.sessions || [];
-    const histSection = document.querySelector('.home-section');
-    if (!sessions.length) {
-      histSection.innerHTML = '<div class="section-title">Recent Purchases</div><div style="color:var(--gray);font-size:14px;padding:8px 0;">No purchases yet — start scanning!</di';
-      return;
-    }
-    const totalSpent = sessions.reduce((s,sess) => s + (sess.payment?.total||0), 0);
-    const totalItems = sessions.reduce((s,sess) => s + sess.totalItems, 0);
-    const statCards = document.querySelectorAll('.stat-card .stat-value');
-    if (statCards[0]) statCards[0].innerHTML = sessions.length;
-    if (statCards[1]) statCards[1].innerHTML = totalSpent.toLocaleString() + ' <span class="stat-unit">RWF</span>';
-    if (statCards[2]) statCards[2].innerHTML = totalItems;
-    const histHTML = sessions.slice(0,5).map(sess => {
-      const d = new Date(sess.completedAt);
-      const dateStr = d.toLocaleDateString('en-RW', { weekday:'short', hour:'2-digit', minute:'2-digit' });
-      return `<div class="history-item">
-        <div class="history-icon">🛒</div>
-        <div class="history-info">
-          <div class="h-name">Inzovu Supermarket</div>
-          <div class="h-date">${dateStr} · ${sess.totalItems} items</div>
-        </div>
-        <div class="history-amount">${(sess.payment?.al||0).toLocaleString()} <span class="curr">RWF</span></div>
-      </div>`;
-    }).join('');
-    histSection.innerHTML = '<div class="section-title">Recent Purchases</div>' + histHTML;
-  } catch(e) { console.warn('History load failed:', e.message); }
-}
-
-// ============================================================
-// SCANNER
-// ============================================================
-function renderDemoProducts() {
-  const grid = document.getElementById('demo-products-grid');
-  if (!grid) return;
-  grid.innerHTML = PRODUCTS.map(p => `
-    <button class="demo-product-btn" onclick="scanProduct('${p.id}')">
-      <div style="font-size:22px;margin-bottom:4px;">${p.emoji}</div>
-      <div class="dp-name">${p.name}</div>
-      <div class="dp-price">${p.price.toLocaleString()} RWF</div>
-      <div class="dp-weight">${p.weight}kg</div>
-    </button>`).join('');
-}
-
-async function scanProduct(productId) {
-  if (!currentSession) return;
-  const product = PRODUCTS.find(p => p.id === productId);
-  if (!product) return;
-
+async function addToCart(productId, name, price, emoji, weight) {
   // Optimistic update
-  const existing = cart.find(i => i.product.id === productId);
-  if (existing) { existing.qty++; } else { cart.push({ product, qty: 1 }); }
+  const existing = cart.find(i => i.id === productId);
+  if (existing) { existing.quantity++; } else { cart.push({ id: productId, name, price, emoji, weight, quantity: 1 }); }
+  updateCartUI();
+  updateFloatingCartCount();
+  showToast(emoji + ' ' + name + ' added!');
+  setTimeout(() => navTo('screen-cart'), 500);
 
-  // Flash
-  const frame = document.querySelector('.scan-frame');
-  frame.style.boxShadow = '0 0 0 3px var(--green)';
-  frame.style.background = 'rgba(0,197,102,0.1)';
-  setTimeout(() => { frame.style.boxShadow=''; frame.style.background=''; }, 400);
-
-  setTimeout(() => showScreen('cart'), 300);
-
-  try {
-    const data = await api('POST', `/api/sessions/${currentSession.sessionId}/scan`, { productId });
-    currentSession = data.session;
-    syncCartFromSession();
-    renderCart();
-  } catch (e) {
-    console.warn('Scan sync failed:', e.message);
-    const idx = cart.findIndex(i => i.product.id === productId);
-    if (idx !== -1) { cart[idx].qty--; if (cart[idx].qty<=0) cart.splice(idx,1); }
-    renderCart();
-  }
-}
-
-// ============================================================
-// CART — FIXED
-// ==========================================================
-function renderCart() {
-  const list    = document.getElementById('cart-items-list');
-  const empty   = document.getElementById('cart-empty-state');
-  const footer  = document.getElementById('cart-footer');
-  const countEl = document.getElementById('cart-count');
-
-  const totalQty    = cart.reduce((s,i) => s + i.qty, 0);
-  const totalPrice  = cart.reduce((s,i) => s + i.product.price * i.qty, 0);
-  const totalWeight = cart.reduce((s,i) => s + i.product.weight * i.qty, 0);
-
-  countEl.textContent = totalQty;
-
-  if (!cart.length) {
-    list.innerHTML = '';
-    list.appendChild(empty);
-    empty.style.display  = 'flex';
-    footer.style.display = 'none';
-    return;
-  }
-
-  empty.style.display  = 'none';
-  footer.style.display = 'block';
-
-  // Rebuild cart items completely
-  list.innerHTML = cart.map(item => `
-    <div class="cart-item">
-      <div class="item-emoji">${item.product.emoji}</div>
-      <div class="item-info">
-        <div class="item-name">${item.product.name}</div>
-        <div class="item-meta">${item.product.price.toLocaleString()} RWF · ${item.product.weight}kg</div>
-      </div>
-      <div class="item-controls">
-        <button class="qty-btn remove" onclick="changeQty('${item.product.id}',-1)">−</button>
-        <span class="qty-val">${item.qty}</span>
-        <button class="qty-btn" onclick="changeQty('${item.product.id}',1)">+</button>
-      </div>
-      <div class="item-price">${(item.product.price*item.qty).toLocaleString()}<br>
-        <span style="font-size:11px;color:var(ray);font-weight:400;">RWF</span>
-      </div>
-    </div>`).join('');
-
-  document.getElementById('cart-subtotal').textContent    = totalPrice.toLocaleString() + ' RWF';
-  document.getElementById('cart-grand-total').textContent = totalPrice.toLocaleString() + ' RWF';
-  document.getElementById('cart-weight').textContent      = totalWeight.toFixed(2) + ' kg';
-
-  const ww = document.getElementById('weight-warning');
-  if (totalWeight > 5) {
-    ww.style.display = 'flex';
-    ww.innerHTML = `⚖️ <span>Total wt ${totalWeight.toFixed(1)}kg exceeds 5kg. Security check at exit.</span>`;
-  } else { ww.style.display = 'none'; }
-}
-
-async function changeQty(productId, delta) {
-  const idx = cart.findIndex(i => i.product.id === productId);
-  if (idx === -1) return;
-  cart[idx].qty += delta;
-  if (cart[idx].qty <= 0) cart.splice(idx, 1);
-  renderCart();
+  // Sync to backend
   if (!currentSession) return;
   try {
-    const data = await api('PATCH', `/api/sessions/${currentSession.sessionId}/item`, { productId, delta });
+    const data = await api('POST', '/api/sessions/' + currentSession.sessionId + '/scan', { productId });
     currentSession = data.session;
     syncCartFromSession();
-    renderCart();
-  } catch (e) { console.warn('Qty sync failed:', e.message); }
+    updateCartUI();
+  } catch(e) {
+    const idx = cart.findIndex(i => i.id === productId);
+    if (idx !== -1) { cart[idx].quantity--; if (cart[idx].quantity <= 0) cart.splice(idx, 1); }
+    updateCartUI(); updateFloatingCartCount();
+  }
+}
+
+function updateQuantity(productId, delta) {
+  const item = cart.find(i => i.id === productId);
+  if (!item) return;
+  item.quantity += delta;
+  if (item.quantity <= 0) cart = cart.filter(i => i.id !== productId);
+  updateCartUI();
+  updateFloatingCartCount();
+  if (!currentSession) return;
+  api('PATCH', '/api/sessions/' + currentSession.sessionId + '/item', { productId, delta })
+    .then(d => { currentSession = d.session; syncCartFromSession(); updateCartUI(); })
+    .catch(e => console.warn('Qty sync:', e.message));
 }
 
 async function clearCart() {
   cart = [];
-  renderCart();
+  updateCartUI();
+  updateFloatingCartCount();
+  showToast('Cart cleared');
   if (!currentSession) return;
-  try {
-    const data = await api('DELETE', `/api/sessions/${currentSession.sessionId}/cart`);
-    currentSession = data.session;
-  } catch (e) { console.warn('Clear cart failed:', e.message); }
+  try { const d = await api('DELETE', '/api/sessions/' + currentSession.sessionId + '/cart'); currentSession = d.session; }
+  catch(e) { console.warn(e.message); }
 }
 
-// ============================================================
-// CHECKOUT
-// ============================================================
-function selectPayment(method, el) {
-  selectedPayment = method;
-  document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  document.getElementById('phone-input-wrapper').style.display = method==='cash' ? 'none' : 'block';
-}
+function continueShopping() { navTo('screen-scan'); }
 
-function renderCheckout() {
-  const total = cart.reduce((s,i) => s + i.product.price * i.qty, 0);
-  document.getElementById('checkout-total').textContent = total.toLocaleString() + ' RWF';
-  document.getElementById('checkout-items-preview').innerHTML = cart.map(item => `
-    <div class="summary-row">
-      <span class="s-label">${item.product.emoji} ${item.product.name} x${item.qty}</span>
-      <span class="s-val">${(item.product.price*item.qty).toLocaleString()} RWF</span>
+function updateCartUI() {
+  const listEl = document.getElementById('cart-items-list');
+  const summaryEl = document.getElementById('cart-summary');
+  const totalEl = document.getElementById('cart-total');
+
+  if (!cart.length) {
+    listEl.innerHTML = '<div class="text-center text-gray-400 py-12"><div class="text-6xl mb-4">🛒</div><p class="text-lg font-medium">Your cart is empty</p><button onclick="startShopping()" class="mt-6 text-[#00C566] font-semibold underline">Start Shopping →</button></div>';
+    if (summaryEl) summaryEl.style.display = 'none';
+    if (totalEl) totalEl.textContent = '0';
+    return;
+  }
+
+  if (summaryEl) summaryEl.style.display = 'block';
+  const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  const totalWeight = cart.reduce((s, i) => s + (i.weight || 0) * i.quantity, 0);
+  if (totalEl) totalEl.textContent = subtotal.toLocaleString();
+
+  listEl.innerHTML = cart.map(item => `
+    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">${item.emoji}</span>
+        <div><p class="font-semibold">${item.name}</p><p class="text-xs text-gray-500">${item.price.toLocaleString()} RWF</p></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="updateQuantity('${item.id}',-1)" class="w-8 h-8 bg-gray-200 rounded-full font-bold">-</button>
+        <span class="font-bold w-6 text-center">${item.quantity}</span>
+        <button onclick="updateQuantity('${item.id}',1)" class="w-8 h-8 bg-gray-200 rounded-full font-bold">+</button>
+        <span class="font-bold w-24 text-right">${(item.price * item.quantity).toLocaleString()} RWF</span>
+      </div>
     </div>`).join('');
+
+  document.getElementById('cart-subtotal').textContent = subtotal.toLocaleString() + ' RWF';
+  document.getElementById('cart-weight').textContent = totalWeight.toFixed(2) + ' kg';
+  document.getElementById('cart-grand-total').textContent = subtotal.toLocaleString() + ' RWF';
+}
+
+// ============================================================
+// CHECKOUT & PAYMENT
+// ============================================================
+function proceedToCheckout() {
+  if (!cart.length) { showToast('Cart is empty'); return; }
+  const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  document.getElementById('checkout-items').innerHTML = cart.map(item =>
+    `<div class="flex justify-between text-sm py-2"><span>${item.emoji} ${item.name} x${item.quantity}</span><span>${(item.price * item.quantity).toLocaleString()} RWF</span></div>`
+  ).join('');
+  document.getElementById('checkout-total').textContent = total.toLocaleString() + ' RWF';
+  navTo('screen-checkout');
+}
+
+function selectPayment(method, element) {
+  selectedPayment = method;
+  document.querySelectorAll('.payment-option').forEach(el => {
+    el.classList.remove('border-[#00C566]', 'bg-green-50');
+    const dot = el.querySelector('.rounded-full');
+    if (dot) { dot.classList.remove('bg-[#00C566]'); dot.classList.add('border-gray-300', 'border-2'); }
+  });
+  element.classList.add('border-[#00C566]', 'bg-green-50');
+  const dot = element.querySelector('.rounded-full');
+  if (dot) { dot.classList.add('bg-[#00C566]'); dot.classList.remove('border-gray-300', 'border-2'); }
 }
 
 async function processPayment() {
-  if (!currentSession || !cart.length) return;
-  const phone = document.getElementById('checkout-phone')?.value || '';
-  showScreen('processing');
+  if (!currentSession || !cart.length) { showToast('Cart is empty'); return; }
+  const phone = document.getElementById('payment-phone').value || '';
+  showToast('Processing payment...');
   try {
-    const data = await api('POST', `/api/sessions/${currentSession.sessionId}/checkout`, { method: selectedPayment, phone });
-    currentTxnId = data.txnId;
+    const data = await api('POST', '/api/sessions/' + currentSession.sessionId + '/checkout', { method: selectedPayment, phone });
+    const txnId = data.txnId;
     setTimeout(async () => {
       try {
-        const confirmed = await api('POST', `/api/sessions/${currentSession.sessionId}/confirm`);
+        const confirmed = await api('POST', '/api/sessions/' + currentSession.sessionId + '/confirm');
         currentSession = confirmed.session;
-        generateReceipt();
-        showScreen('receipt');
-      } catch(e) { alert('Payment confirmation failed: ' + e.message); showScreen('checkout'); }
-    }, 2800);
-  } catch (e) { alert('Checkout failed: ' + e.message); showScreen('checkout'); }
+        document.getElementById('receipt-code').textContent = txnId;
+        cart = []; updateCartUI(); updateFloatingCartCount();
+        navTo('screen-success');
+      } catch(e) { showToast('Payment failed: ' + e.message); }
+    }, 2000);
+  } catch(e) { showToast('Checkout failed: ' + e.message); }
+}
+
+async function resetAndGoHome() {
+  try { const d = await api('POST', '/api/sessions/start'); currentSession = d.session; } catch(e) { currentSession = null; }
+  navTo('screen-stores');
 }
 
 // ============================================================
-// RECEIPT
+// FLOATING CART BUTTON
 // ============================================================
-function generateReceipt() {
-  const total = cart.reduce((s,i) => s + i.product.price * i.qty, 0);
-  const methodNames = { momo:'MTN MoMo', airtel:'Airtel Money', cash:'Cash' };
-  document.getElementById('receipt-subtitle').textContent = `Paid via ${methodNames[selectedPayment]} · Jus now`;
-  document.getElementById('receipt-total').textContent = total.toLocaleString() + ' RWF';
-  document.getElementById('receipt-id').textContent = currentTxnId;
-  document.getElementById('receipt-items-list').innerHTML = cart.map(item => `
-    <div class="receipt-item-row">
-      <div><div class="r-item-name">${item.product.emoji} ${item.product.name}</div><div class="r-item-qty">x${item.qty} × ${item.product.price.toLocaleString()} RWF</div></div>
-      <div class="r-item-price">${(item.product.price*tem.qty).toLocaleString()} RWF</div>
-    </div>`).join('');
-  const qp = document.getElementById('qr-pattern');
-  qp.innerHTML = '';
-  for (let i=0; i<100; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'qr-cell';
-    const row=Math.floor(i/10), col=i%10;
-    const inCorner=(row<3&&col<3)||(row<3&&col>6)||(row>6&&col<3);
-    cell.style.background=(inCorner||Math.random()>0.5)?'#0D1A0F':'transparent';
-    qp.appendChild(cell);
-  }
+function addFloatingCartButton() {
+  if (document.getElementById('floating-cart-btn')) return;
+  const btn = document.createElement('div');
+  btn.id = 'floating-cart-btn';
+  btn.innerHTML = '<span style="color:white;font-size:24px;">🛒</span><span class="floating-cart-count" id="floating-cart-count" style="display:none;">0</span>';
+  btn.onclick = () => navTo('screen-cart');
+  document.body.appendChild(btn);
 }
 
-async function doneAndReset() {
-  cart = [];
-  try {
-    const data = await api('POST', '/api/sessions/start');
-    currentSession = data.session;
-  } catch(e) { currentSession = null; }
-  populateHomeScreen();
-  showScreen('home');
+function updateFloatingCartCount() {
+  const count = cart.reduce((s, i) => s + i.quantity, 0);
+  const span = document.getElementById('floating-cart-count');
+  if (span) { span.textContent = count; span.style.display = count > 0 ? 'flex' : 'none'; }
 }
 
 // ============================================================
-// ADMIN
+// NAVIGATION & UTILITIES
 // ============================================================
-let adminPollInterval = null;
-function startAdminPolling() { stopAdminPolling(); adminPollInterval = setInterval(renderAdminFull, 3000); }
-function stopAdminPolling() { if (adminPollInterval) { clearInterval(adminPollInterval); adminPollInterval=null; } }
-
-let adminData = { kpis:{}, sessions:[], completed:[], alerts:[], inventory:[] };
-
-async function renderAdminFull() {
-  try {
-    const [kpiRes,liveRes,completedRes,alertsRes,invRes] = await Promise.all([
-      api('GET','/api/sessions/admin/kpis'),
-      api('GET','/api/sessions/admin/live'),
-      api('GET','/api/sessions/admin/completed'),
-      api('GET','/api/alerts'),
-      api('GET','/api/sessions/admin/inventory'),
-    ]);
-    adminData.kpis=kpiRes.kpis; adminData.sessions=liveRes.sessions;
-    adminData.completed=completedRes.sessions; adminData.alerts=alertsRes.alerts;
-    adminData.inventory=invRes.inventory;
-  } catch(e) { console.warn('Admin fetch error:',e.message); return; }
-  renderAdminKPIs(); renderAdminSessions(); renderAdminInventory(); renderAdminAlerts(); renderAdminCompleted();
+function navTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
+  const el = document.getElementById(screenId);
+  if (el) el.classList.add('active-screen');
+  if (screenId === 'screen-cart') updateCartUI();
+  if (screenId === 'screen-supermarket-dashboard') { r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8(); startAdminPolling(); }
+  if (screenId !== 'screen-supermarket-dashboard') stopAdminPolling();
+  if (screenId === 'screen-stores') renderSupermarketsList();
 }
 
-function renderAdminKPIs() {
-  const k=adminData.kpis;
-  document.getElementById('kpi-active').textContent=k.activeShoppers??0;
-  document.getElementById('kpi-total-items').textContent=k.totalItemsInCarts??0;
-  const lv=k.liveValue??0;
-  document.getElementById('kpi-total-revenue').textContent=lv>=1000?(lv/1000).toFixed(1)+'k':lv;
-}
-
-function renderAdminSessions() {
-  const list=document.getElementById('admin-sessions-list');
-  const sessions=adminData.sessions;
-  if (!sessions.length) { list.innerHTML='<div class="empty-state">No active shoppers right now</div>'; return; }
-  const dotClass=s=>s.status==='paying'?'dot-yellow':s.status==='active'?'dot-green':'dot-gray';
-  list.innerHTML=sessions.map(sess=>{
-    const total=sess.totalPrice||0, weight=sess.totalWeight||0, sid=sess.sessionId;
-    const mins=Math.floor((Date.now()-new Date(sess.startedAt))/60000);
-    return `<div class="session-card" onclick="toggleSession('${sid}')">
-      <div class="session-header">
-        <div class="session-avatar" style="background:${sess.shopperColor||'#00C566'}">${sess.shopperAvatar||'??'}</div>
-        <div class="session-info">
-          <div class="session-name">${sess.shopperName}</div>
-          <div class="session-meta">${sess.totalItems||0} items · ${total.toLocaleString()} RWF · ${weight.toFixed(1)}kg · ${mins}m</div>
-        </div>
-        <div class="session-status-dot ${dotClass(sess)}"></div>
-      </div>
-      <div class="session-items-table" id="sess-table-${sid}">
-        ${!sess.items.length?'<div style="padding:12px 0;color:#2D4A30;font-size:13px;text-align:center;">Cart is empty</div>':
-          sess.items.map(item=>`<div class="sit-row            <div class="sit-emoji">${item.productSnapshot.emoji}</div>
-            <div class="sit-name">${item.productSnapshot.name}</div>
-            <div class="sit-qty">×${item.qty}</div>
-            <div class="sit-price">${(item.productSnapshot.price*item.qty).toLocaleString()} RWF</div>
-          </div>`).join('')}
-        ${sess.items.length?`<div class="sit-total-row">
-          <div><div class="sit-total-label">Cart Total</div><div class="sit-weight">${weight.toFixed(2)} kg</div></div>
-          div class="sit-total-val">${total.toLocaleString()} RWF</div>
-        </div>`:''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleSession(sid) { const t=document.getElementById('sess-table-'+sid); if(t) t.classList.toggle('open'); }
-
-function renderAdminInventory() {
-  const container=document.getElementById('admin-inventory');
-  const sorted=adminData.inventory;
-  if (!sorted.length) { container.innerHTML='<div class="empty-state">No items scanned yet</div>'; return; }
-  const maxQty=sorted[0].qty||1;
-  container.innerHTML=sorted.map(item=>`<div class="inv-row">
-    <div class="inv-emoji">${item.product.emoji}</div>
-    <div class="inv-name-col">
-      <div class="inv-name">${item.product.name}</div>
-      <div class="inv-price">${item.product.price.toLocaleString()} RWF each</div>
-      <div class="inv-bar-wrap"><div class="inv-bar-fill" style="width:${Math.round(item.qty/maxQty*100)}%"></div></div>
-    </div>
-    <div class="inv-sold"><div class="inv-sold-val">${item.qty}</div><div class="inv-sold-label">units</div></div>
-    <div class="inv-revenue"><div class="inv-rev-val">${item.revenue>=1000?(item.revenue/1000).toFixed(1)+'k':item.revenue} RWF</div><div class="inv-rev-label">revenue</div></div>
-  </div>`).join('');
-}
-
-function renderAdminAlerts() {
-  const list=document.getElementById('admin-alerts-list');
-  const alerts=adminData.alerts;
-  document.getElementById('alert-count').textContent=alerts.length;
-  if (!alerts.length) { list.innerHTML='<div style="padding:8px 0;color:#2D4A30;font-size:13px;text-align:center;">No alerts</div>'; return; }
-  list.innerHTML=alerts.map(a=>`<div class="alert-card">
-    <div class="alert-icon">${a.icon}</div>
-    <div class="alert-body"><strong>${a.title}</strong><span>${a.detail}</span></div>
-    <div class="alert-time">${a.time}</div>
-  </div>`).join('');
-}
-
-function renderAdminCompleted() {
-  const list=document.getElementById('admin-completed-list');
-  const sessions=adminData.completed;
-  const totalRev=sessions.reduce((s,c)=>s+(c.payment?.total||0),0);
-  document.getElementById('completed-total-rev').textContent=totalRev.toLocaleString()+' RWF';
-  if (!sessions.length) { list.innerHTML='<div class="empty-state">No completed sessions yet</div>'; return; }
-  list.innerHTML=sessions.map(c=>`<div class="completed-row">
-    <div class="completed-tick">✓</div>
-    <div>
-      <div style="font-size:14px;font-weight:600;color:#8FA696;">${c.shopperName}</div>
-      <div class="cr-method">${c.payment?.methodLabel||'—'} · ${c.payment?.txnId||'—'}</div>
-    </d <div style="text-align:right;">
-      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:#4D6B52;">${(c.payment?.total||0).toLocaleString()} RWF</div>
-      <div class="cr-items">${c.totalItems||0} items</div>
-    </div>
-  </div>`).join('');
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const logoutBtn = document.querySelector('.admin-logout');
-  if (logoutBtn) logoutBtn.onclick = () => { stopAdminPolling(); clearAuth(); showScreen('auth'); };
-});
-
-// ============================================================
-// SUPER ADMIN
-// ============================================================
-async function renderSuperAdminFull() {
-  try {
-    const [storesRes, statsRes] = await Promise.all([
-      api('GET', '/api/supermarkets'),
-      api('GET', '/api/supermarkets/stats'),
-    ]);
-    const stores = storesRes.supermarkets || [];
-    const stats  = statsRes.stats || {};
-
-    document.getElementById('sa-kpi-total').textContent     = stats.total || 0;
-    document.getElementById('sa-kpi-active').textContent    = stats.active || 0;
-    document.getElementById('sa-kpi-suspended').textContent = stats.suspended || 0;
-
-    const list = document.getElementById('sa-stores-list');
-    if (!stores.length) {
-      list.innerHTML = '<div style="text-align:center;padding:30px;color:#3A3A5C;font-size:14px;">No supermarkets yet. Add one above!</div>';
-      return;
-    }
-
-    list.innerHTML = stores.map(store => {
-      const statusColor = store.status==='active'?'#00C566':store.status==='suspended'?'#FF3B5C':'#FFD600';
-      const statusLabel = store.status.charAt(0).toUpperCase() + store.status.slice(1);
-      return `<div style="background:#0F0F1A;border:1px solid #1A1A2E;border-radius:16px;padding:16px;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
-          <div style="width:44px;height:44px;background:#1A1A2E;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;">${store.logo||'🏪'}</div>
-          <div style"flex:1;">
-            <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--white);font-size:15px;">${store.name}</div>
-            <div style="font-size:12px;color:#3A3A5C;">${store.email} ${store.city?'· '+store.city:''}</div>
-          </div>
-          <div style="background:${statusColor}22;color:${statusColor};font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;">${statusLabel}</div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          ${store.status==='ctive'
-            ? `<button onclick="setSupermarketStatus('${store._id}','suspended')" style="flex:1;padding:8px;background:rgba(255,59,92,0.1);color:var(--red);border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">⏸ Suspend</button>`
-            : `<button onclick="setSupermarketStatus('${store._id}','active')" style="flex:1;padding:8px;background:rgba(0,197,102,0.1);color:var(--green);border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">▶ Activate</bu>`
-          }
-          <button onclick="deleteSupermarket('${store._id}')" style="padding:8px 12px;background:rgba(255,59,92,0.08);color:var(--red);border:none;border-radius:8px;font-size:12px;cursor:pointer;">🗑</button>
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e) {
-    console.warn('Super admin fetch error:', e.message);
-    document.getElementById('sa-stores-list').innerHTML =
-      '<div style="text-align:center;padding:30px;color:#FF3B5C;font-size:14px;">Failed to load: ' + e.messag+ '</div>';
-  }
-}
-
-function showAddSupermarket() {
-  const form = document.getElementById('sa-add-form');
-  form.style.display = form.style.display==='none' ? 'block' : 'none';
-}
-
-async function submitAddSupermarket() {
-  const msgEl = document.getElementById('sa-form-msg');
-  const name  = document.getElementById('sa-name').value.trim();
-  const email = document.getElementById('sa-email').value.trim();
-  const phone = document.getElementById('sa-phone').value.trim();
-  const city  = document.getElementById('sa-city').value.trim();
-
-  if (!name || !email) {
-    msgEl.style.display='block'; msgEl.style.color='var(--red)';
-    msgEl.textContent='Name and email are required.'; return;
-  }
-  try {
-    await api('POST', '/api/supermarkets', { name, email, phone, city });
-    document.getElementById('sa-name').value  = '';
-    document.getElementById('sa-email').value = '';
-    document.getElementById('sa-phone').value = '';
-    document.getElementById('sa-city').value  = '';
-    document.getElementById('sa-add-form').style.display = 'none';
-    await renderSuperAdminFull();
-  } catch(e) {
-    msgEl.style.display='block'; msgEl.style.color='var(--red)';
-    msgEl.textContent = e.message;
-  }
-}
-
-async function setSupermarketStatus(id, status) {
-  try {
-    await api('PATCH', `/api/supermarkets/${id}/status`, { status });
-    await renderSuperAdminFull();
-  } catch(e) { alert('Failed: ' + e.message); }
-}
-
-async function deleteSupermarket(id) {
-  if (!confirm('Delete this supermarket? This cannot be undone.')) return;
-  try {
-    await api('DELETE', `/api/supermarkets/${id}`);
-    await renderSuperAdminFull();
-  } catch(e) { alert('Failed: ' + e.message); }
-}
-
-function doSuperAdminLogout() {
-  clearAuth();
-  showScreen('auth');
+function showToast(message) {
+  const existing = document.querySelectorAll('.toast');
+  existing.forEach(t => t.remove());
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
 }
 </script>
 </body>
 </html>
-

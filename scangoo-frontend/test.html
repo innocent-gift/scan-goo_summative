@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>SCANGOO Test</title></head>
+<body>
+<h1>SCANGOO Test Page</h1>
+<p>If you see this, HTML is working.</p>
+<script>
+console.log("Testing connection to backend");
+fetch('http://localhost:5000')
+  .then(r => r.json())
+  .then(data => console.log("Backend response:", data))
+  .catch(err => console.error("Backend error:", err));
+</script>
+</body>
+</html>

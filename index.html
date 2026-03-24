@@ -32,9 +32,8 @@
         .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1f2937; color: white; padding: 12px 24px; border-radius: 50px; z-index: 1001; animation: fadeInOut 2.5s ease; font-size: 14px; font-weight: 500; white-space: nowrap; box-shadow: var(--shadow-md); }
         @keyframes fadeInOut { 0% { opacity: 0; transform: translateX(-50%) translateY(20px); } 15% { opacity: 1; transform: translateX(-50%) translateY(0); } 85% { opacity: 1; transform: translateX(-50%) translateY(0); } 100% { opacity: 0; transform: translateX(-50%) translateY(20px); } }
         .cart-items-scroll { max-height: 50vh; overflow-y: auto; padding-right: 4px; }
-        #floating-cart-btn { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background: var(--primary-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,197,102,0.4); cursor: pointer; z-index: 1000; transition: all 0.3s ease; }
-        .floating-cart-count { position: absolute; top: -5px; right: -5px; background: #ff3b5c; color: white; border-radius: 50%; min-width: 22px; height: 22px; font-size: 11px; font-weight: bold; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
-        .supermarket-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm); transition: all 0.2s; }
+        /* FLOATING CART BUTTON REMOVED - no styles needed */
+        .supermarket-card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm); transition: all 0.2s; cursor: pointer; }
         .supermarket-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
         .transaction-item { border-left: 3px solid var(--primary-green); padding: 12px; margin-bottom: 8px; background: #f9f9f9; border-radius: 8px; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
@@ -433,7 +432,7 @@ async function api(method, path, body) {
 // INIT
 // ============================================================
 window.addEventListener('DOMContentLoaded', () => {
-  addFloatingCartButton();
+  // Floating cart button removed - no longer added
   setupTabs();
   if (restoreAuth()) {
     routeByRole(currentUser.role);
@@ -447,7 +446,7 @@ async function routeByRole(role) {
       navTo('screen-platform-dashboard');
     } else if (role === 'admin') {
       await loadProducts();
-      await r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8();
+      await rahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8();
       navTo('screen-supermarket-dashboard');
     } else {
       await loadProducts();
@@ -497,7 +496,7 @@ function toggleRegister() {
     ? 'Already have an account? Login →'
     : "Don't have an account? Register →";
   document.getElementById('shopper-login-btn').textContent = isRegistering ? 'Create Account' : 'Sign In as Shopper';
-  document.getElementById('shopper-login-btn').onclick = isRegistering ? handleShopperRegister : handleShopperLogin;
+  document.getElementById('shopper-login-btn').onclick = isRegistering ? handleShopperRegisterandleShopperLogin;
 }
 
 // ============================================================
@@ -519,8 +518,7 @@ async function handleShopperLogin() {
   } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
   finally { btn.textContent = 'Sign In as Shopper'; btn.disabled = false; }
 }
-
-async function handleShopperRegister() {
+sync function handleShopperRegister() {
   const errEl = document.getElementById('shopper-error');
   errEl.style.display = 'none';
   const name = document.getElementById('reg-name').value.trim();
@@ -537,7 +535,7 @@ async function handleShopperRegister() {
     document.getElementById('login-email').value = email;
     document.getElementById('login-password').value = '';
   } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
-  finally { btn.textContent = 'Create Account'; btn.disabled = false; }
+  finally n.textContent = 'Create Account'; btn.disabled = false; }
 }
 
 async function handleSupermarketAdminLogin() {
@@ -552,7 +550,7 @@ async function handleSupermarketAdminLogin() {
     saveAuth(data.token, data.user);
     userRole = data.user.role;
     await loadProducts();
-    await r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8();
+    await rahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8();
     startAdminPolling();
     navTo('screen-supermarket-dashboard');
     showToast('Welcome Admin!');
@@ -581,7 +579,6 @@ function logout() {
   clearAuthData();
   cart = [];
   updateCartUI();
-  updateFloatingCartCount();
   showToast('Logged out');
   navTo('screen-login');
 }
@@ -622,13 +619,13 @@ async function renderPlatformDashboard() {
             <span class="text-xs font-bold px-2 py-1 rounded-full ${sup.status === 'active' ? 'bg-green-100 text-green-600' : sup.status === 'suspended' ? 'bg-red-100 text-red-500' : 'bg-yellow-100 text-yellow-600'}">${sup.status}</span>
             ${sup.status === 'active'
               ? `<button onclick="setSupermarketStatus('${sup._id}','suspended')" class="text-red-500 text-xs px-2 py-1 hover:bg-red-50 rounded">⏸ Suspend</button>`
-              : `<button onclick="setSupermarketStatus('${sup._id}','active')" class="text-green-500 text-xs px-2 py-1 hover:bg-green-50 rounded">▶ Activate</button>`
+            : `<button onclick="setSupermarketStatus('${sup._id}','active')" class="text-green-500 text-xs px-2 py-1 hover:bg-green-50 rounded">▶ Activate</button>`
             }
             <button onclick="deleteSupermarket('${sup._id}')" class="text-red-500 text-xs px-2 py-1 hover:bg-red-50 rounded">🗑️</button>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2 pt-3 border-t">
-          <div><p class="text-xs text-gray-500">Registered</p><p class="font-bold text-xs">${new Date(sup.createdAt).toLocaleDateString()}</p></div>
+          <div><p class="text-xs text-gray-500">Registered</p><p class="font-bold text-xs">${new Dp.createdAt).toLocaleDateString()}</p></div>
           <div><p class="text-xs text-gray-500">Plan</p><p class="font-bold text-xs capitalize">${sup.plan || 'free'}</p></div>
         </div>
       </div>`).join('');
@@ -647,7 +644,7 @@ async function addSupermarket() {
   btn.textContent = 'Adding…'; btn.disabled = true;
   try {
     await api('POST', '/api/supermarkets', { name, email, phone, city });
-    ['new-sup-name','new-sup-location','new-sup-email','new-sup-phone'].forEach(id => document.getElementById(id).value = '');
+    ['new-sup-name'new-sup-location','new-sup-email','new-sup-phone'].forEach(id => document.getElementById(id).value = '');
     showToast(name + ' added successfully!');
     await renderPlatformDashboard();
   } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
@@ -655,7 +652,7 @@ async function addSupermarket() {
 }
 
 async function setSupermarketStatus(id, status) {
-  try { await api('PATCH', '/api/supermarkets/' + id + '/status', { status }); await renderPlatformDashboard(); showToast('Status updated'); }
+  try { await api('PATCH', '/api/supermarkets/' + id + '/status', { status }); await renderPlatformDashboard; showToast('Status updated'); }
   catch(e) { showToast('Failed: ' + e.message); }
 }
 
@@ -668,10 +665,10 @@ async function deleteSupermarket(id) {
 // ============================================================
 // SUPERMARKET ADMIN DASHBOARD
 // ============================================================
-function startAdminPolling() { stopAdminPolling(); adminPollInterval = setInterval(r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8, 4000); }
+function startAdminPolling() { stopAdminPolling(); adminPollInterval = setInterval(rahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8, 4000); }
 function stopAdminPolling() { if (adminPollInterval) { clearInterval(adminPollInterval); adminPollInterval = null; } }
 
-async function r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8() {
+async function rahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8() {
   try {
     const [kpiRes, liveRes, completedRes, alertsRes, invRes] = await Promise.all([
       api('GET', '/api/sessions/admin/kpis'),
@@ -704,8 +701,7 @@ async function r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8() {
       ? '<p class="text-gray-400 text-center py-4">No active shoppers</p>'
       : liveSessions.map(s => `
           <div class="transaction-item">
-            <div class="flex justify-between items-start">
-              <div>
+            <div class="flex justify-between items-              <div>
                 <p class="font-semibold">${s.shopperName}</p>
                 <p class="text-xs text-gray-500">${s.totalItems || 0} items · ${s.status}</p>
               </div>
@@ -716,7 +712,7 @@ async function r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8() {
             </div>
           </div>`).join('');
 
-    // Completed
+    // Completd
     const compList = document.getElementById('completed-sessions-list');
     compList.innerHTML = !completedSessions.length
       ? '<p class="text-gray-400 text-center py-4">No completed sessions yet</p>'
@@ -724,7 +720,7 @@ async function r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8() {
           <div class="transaction-item">
             <div class="flex justify-between">
               <div><p class="font-semibold">${c.shopperName}</p><p class="text-xs text-gray-500">${c.payment?.methodLabel || '—'} · ${c.payment?.txnId || '—'}</p></div>
-              <p class="font-bold text-green-600">${(c.payment?.total || 0).toLocaleString()} RWF</p>
+         <p class="font-bold text-green-600">${(c.payment?.total || 0).toLocaleString()} RWF</p>
             </div>
           </div>`).join('');
 
@@ -760,14 +756,20 @@ async function r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8() {
 }
 
 // ============================================================
-// STORES
+// STORES - FIXED: Now properly displays all active supermarkets added by platform admin
 // ============================================================
 async function loadStores() {
   try {
     const data = await api('GET', '/api/supermarkets');
+    // Critical fix: Include ALL active supermarkets, not just hardcoded fallback
     allStores = (data.supermarkets || []).filter(s => s.status === 'active');
+    if (allStores.length === 0) {
+      // Only show fallback if truly no active stores exist
+      console.log('No active supermarkets found from API');
+    }
   } catch(e) {
-    allStores = [{ _id: 'default', name: 'Inzovu Supermarket', city: 'Remera, Kigali', logo: '🏪', status: 'active' }];
+    console.error('Failed to load stores:', e.message);
+    allStores = []; // Empty array, no fallback hardcoded store
   }
 }
 
@@ -776,16 +778,19 @@ function renderSupermarketsList(query) {
     ? allStores.filter(s => s.name.toLowerCase().includes(query.toLowerCase()) || (s.city||'').toLowerCase().includes(query.toLowerCase()))
     : allStores;
   const container = document.getElementById('supermarkets-list');
-  container.innerHTML = filtered.length
-    ? filtered.map(sup => `
-        <div class="supermarket-card" onclick="selectSupermarket('${sup._id}')">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-[#005a64] to-[#00C566] rounded-xl flex items-center justify-center text-2xl">${sup.logo || '🏪'}</div>
-            <div class="flex-1"><p class="font-bold">${sup.name}</p><p class="text-xs text-gray-500">📍 ${sup.city || 'Rwanda'}</p></div>
-            <div class="text-2xl text-gray-400">→</div>
-          </div>
-        </div>`).join('')
-    : '<p class="text-gray-400 text-center py-4">No stores found</p>';
+  if (!container) return;
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="text-center py-8 text-gray-500 bg-gray-50 rounded-2xl">🏪 No supermarkets available yet.<br>Check back later!</div>';
+    return;
+  }
+  container.innerHTML = filtered.map(sup => `
+    <div class="supermarket-card" onclick="selectSupermarket('${sup._id}')">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-[#005a64] to-[#00C566] rounded-xl flex items-center justify-center text-2xl">${sup.logo || '🏪'}</div>
+        <div class="flex-1"><p class="font-bold">${sup.name}p><p class="text-xs text-gray-500">📍 ${sup.city || 'Rwanda'}</p></div>
+        <div class="text-2xl text-gray-400">→</div>
+      </div>
+    </div>`).join('');
 }
 
 function filterStores() {
@@ -793,10 +798,14 @@ function filterStores() {
 }
 
 function selectSupermarket(storeId) {
-  currentSupermarket = allStores.find(s => s._id === storeId) || allStores[0];
-  if (currentSupermarket) localStorage.setItem('sg_store', JSON.stringify(currentSupermarket));
-  showToast('Shopping at ' + (currentSupermarket?.name || 'store'));
-  startShopping();
+  currentSupermarket = allStores.find(s => s._id === storeId);
+  if (currentSupermarket) {
+    localStorage.setItem('sg_store', JSON.stringify(currentSupermarket));
+    showToast('Shopping at ' + currentSuarket.name);
+    startShopping();
+  } else {
+    showToast('Store not found');
+  }
 }
 
 function updateUserAvatar() {
@@ -847,7 +856,6 @@ function syncCartFromSession() {
     weight: i.productSnapshot.weight || 0,
     quantity: i.qty
   }));
-  updateFloatingCartCount();
 }
 
 // ============================================================
@@ -863,7 +871,6 @@ async function addToCart(productId, name, price, emoji, weight) {
   const existing = cart.find(i => i.id === productId);
   if (existing) { existing.quantity++; } else { cart.push({ id: productId, name, price, emoji, weight, quantity: 1 }); }
   updateCartUI();
-  updateFloatingCartCount();
   showToast(emoji + ' ' + name + ' added!');
   setTimeout(() => navTo('screen-cart'), 500);
 
@@ -877,7 +884,7 @@ async function addToCart(productId, name, price, emoji, weight) {
   } catch(e) {
     const idx = cart.findIndex(i => i.id === productId);
     if (idx !== -1) { cart[idx].quantity--; if (cart[idx].quantity <= 0) cart.splice(idx, 1); }
-    updateCartUI(); updateFloatingCartCount();
+    updateCartUI();
   }
 }
 
@@ -887,7 +894,6 @@ function updateQuantity(productId, delta) {
   item.quantity += delta;
   if (item.quantity <= 0) cart = cart.filter(i => i.id !== productId);
   updateCartUI();
-  updateFloatingCartCount();
   if (!currentSession) return;
   api('PATCH', '/api/sessions/' + currentSession.sessionId + '/item', { productId, delta })
     .then(d => { currentSession = d.session; syncCartFromSession(); updateCartUI(); })
@@ -897,7 +903,6 @@ function updateQuantity(productId, delta) {
 async function clearCart() {
   cart = [];
   updateCartUI();
-  updateFloatingCartCount();
   showToast('Cart cleared');
   if (!currentSession) return;
   try { const d = await api('DELETE', '/api/sessions/' + currentSession.sessionId + '/cart'); currentSession = d.session; }
@@ -920,7 +925,7 @@ function updateCartUI() {
 
   if (summaryEl) summaryEl.style.display = 'block';
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-  const totalWeight = cart.reduce((s, i) => s + (i.weight || 0) * i.quantity, 0);
+  const totalWeight = cart.reduce((s, i) => s + (i.weight || 0) * i.quantity,
   if (totalEl) totalEl.textContent = subtotal.toLocaleString();
 
   listEl.innerHTML = cart.map(item => `
@@ -979,7 +984,7 @@ async function processPayment() {
         const confirmed = await api('POST', '/api/sessions/' + currentSession.sessionId + '/confirm');
         currentSession = confirmed.session;
         document.getElementById('receipt-code').textContent = txnId;
-        cart = []; updateCartUI(); updateFloatingCartCount();
+        cart = []; updateCartUI();
         navTo('screen-success');
       } catch(e) { showToast('Payment failed: ' + e.message); }
     }, 2000);
@@ -992,22 +997,8 @@ async function resetAndGoHome() {
 }
 
 // ============================================================
-// FLOATING CART BUTTON
+// FLOATING CART BUTTON - REMOVED (no function added)
 // ============================================================
-function addFloatingCartButton() {
-  if (document.getElementById('floating-cart-btn')) return;
-  const btn = document.createElement('div');
-  btn.id = 'floating-cart-btn';
-  btn.innerHTML = '<span style="color:white;font-size:24px;">🛒</span><span class="floating-cart-count" id="floating-cart-count" style="display:none;">0</span>';
-  btn.onclick = () => navTo('screen-cart');
-  document.body.appendChild(btn);
-}
-
-function updateFloatingCartCount() {
-  const count = cart.reduce((s, i) => s + i.quantity, 0);
-  const span = document.getElementById('floating-cart-count');
-  if (span) { span.textContent = count; span.style.display = count > 0 ? 'flex' : 'none'; }
-}
 
 // ============================================================
 // NAVIGATION & UTILITIES
@@ -1017,9 +1008,11 @@ function navTo(screenId) {
   const el = document.getElementById(screenId);
   if (el) el.classList.add('active-screen');
   if (screenId === 'screen-cart') updateCartUI();
-  if (screenId === 'screen-supermarket-dashboard') { r9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8(); startAdminPolling(); }
+  if (screenId === 'screen-supermarket-dashboard') { rahJ91ZuNL8Y2px8iYciYeHN8sfSh5eXH8(); startAdminPolling(); }
   if (screenId !== 'screen-supermarket-dashboard') stopAdminPolling();
-  if (screenId === 'screen-stores') renderSupermarketsList();
+  if (screenId === 'screen-stores') {
+    loadStores().then(() => renderSupermarketsList());
+  }
 }
 
 function showToast(message) {
